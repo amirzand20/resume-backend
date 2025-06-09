@@ -99,7 +99,4 @@ export class Person {
 
   @OneToMany(() => Skill,(skills)=>skills.person)
   skills: Skill[];
-
-
-
 }

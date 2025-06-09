@@ -2,40 +2,42 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { ConfigService } from '@nestjs/config';
+import * as process from "process";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  const configService = app.get(ConfigService);
   
-  // Set up global validation pipe
-  app.useGlobalPipes(new ValidationPipe({
-    transform: true,
-    whitelist: true,
-    forbidNonWhitelisted: true,
-  }));
+  // Enable validation
+  app.useGlobalPipes(new ValidationPipe());
   
-  // Set up Swagger documentation
+  // Configure Swagger
   const config = new DocumentBuilder()
-    .setTitle('Resume Management API')
+    .setTitle('Resume API')
     .setDescription(`API for managing resumes and related data.`)
     .setVersion('1.0')
-    // Add OAuth2 configuration
-    .addOAuth2({
-      type: 'oauth2',
-      flows: {
-        password: {
-          tokenUrl: `http://localhost:3000/auth/login`,
-          scopes: {},
-        }
-      },
-      name: 'jwt-auth',
-      description: 'jwt authentication',
-    })
+    .addBearerAuth(
+      {
+        type: 'oauth2',
+        flows: {
+          password: {
+            tokenUrl: `http://localhost:3000/auth/login`,
+            scopes: {},
+          }
+        },
+      },'jwt-auth'
+    )
     .build();
   
   const document = SwaggerModule.createDocument(app, config);
   
-  // Configure Swagger UI with OAuth2
-  SwaggerModule.setup('api', app, document);
+  // Configure Swagger UI
+  SwaggerModule.setup('api', app, document, {
+    swaggerOptions: {
+      persistAuthorization: true,
+    },
+  });
   
   // Enable CORS
   app.enableCors();

@@ -8,8 +8,8 @@ import { Education } from '../../entity/education.entity';
 import { Experience } from '../../entity/experience.entity';
 import { Skill } from '../../entity/skill.entity';
 import { Certificate } from '../../entity/certificate.entity';
-import { LanguageInfo } from '../../entity/language-info.entity';
 import { AdditionalInformation } from '../../entity/additional-information.entity';
+import { LanguageInfo } from '../../entity/language-info.entity';
 
 @Module({
   imports: [
@@ -19,24 +19,24 @@ import { AdditionalInformation } from '../../entity/additional-information.entit
       Experience,
       Skill,
       Certificate,
-      LanguageInfo,
       AdditionalInformation,
+      LanguageInfo,
     ]),
   ],
   controllers: [ResumeController],
   providers: [
+    ResumeRepository,
     {
       provide: 'IResumeRepository',
       useClass: ResumeRepository,
     },
     {
       provide: ResumeService,
-      useFactory: (resumeRepository) => {
-        return new ResumeService(resumeRepository);
+      useFactory: (resumeRepository, personRepository, educationRepository, experienceRepository, skillRepository, certificateRepository, additionalInformationRepository) => {
+        return new ResumeService(resumeRepository, personRepository, educationRepository, experienceRepository, skillRepository, certificateRepository, additionalInformationRepository);
       },
-      inject: ['IResumeRepository'],
+      inject: ['IResumeRepository', 'PersonRepository', 'EducationRepository', 'ExperienceRepository', 'SkillRepository', 'CertificateRepository', 'AdditionalInformationRepository'],
     },
   ],
-  exports: [ResumeService],
 })
 export class ResumeModule {} 

@@ -9,10 +9,27 @@ import { Certificate } from '../../../entity/certificate.entity';
 import { LanguageInfo } from '../../../entity/language-info.entity';
 import { AdditionalInformation } from '../../../entity/additional-information.entity';
 import { ResumeSearchDto, ResumeSearchResponseDto } from '../domain/resume-search.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { ResumeDto } from '../domain/dto/resume.dto';
 
 @Injectable()
 export class ResumeService implements IResumeService {
-  constructor(private readonly resumeRepository: IResumeRepository) {}
+  constructor(
+    private readonly resumeRepository: IResumeRepository,
+    @InjectRepository(Person)
+    private readonly personRepository: Repository<Person>,
+    @InjectRepository(Education)
+    private readonly educationRepository: Repository<Education>,
+    @InjectRepository(Experience)
+    private readonly experienceRepository: Repository<Experience>,
+    @InjectRepository(Skill)
+    private readonly skillRepository: Repository<Skill>,
+    @InjectRepository(Certificate)
+    private readonly certificateRepository: Repository<Certificate>,
+    @InjectRepository(AdditionalInformation)
+    private readonly additionalInformationRepository: Repository<AdditionalInformation>,
+  ) {}
 
   async createResume(personId: number): Promise<Person> {
     const person = await this.resumeRepository.findPersonById(personId);
@@ -277,5 +294,152 @@ export class ResumeService implements IResumeService {
       limit,
       pageCount
     };
+  }
+
+  async saveResume(resumeDto: ResumeDto, userId: number) {
+    // Create or update person
+    let person = await this.personRepository.findOne({ where: { id: userId } });
+    if (!person) {
+      person = this.personRepository.create({
+        national_no: resumeDto.nationalNo,
+        first_name: resumeDto.firstName,
+        last_name: resumeDto.lastName,
+        birth_date: resumeDto.birthDate,
+        birth_place_id: resumeDto.birthPlaceId,
+        location_place_id: resumeDto.locationPlaceId,
+        sex_id: resumeDto.sexId,
+        aboaut_me: resumeDto.aboutMe,
+        mobile_number: resumeDto.mobileNumber,
+        telephone_number: resumeDto.telephoneNumber,
+        email_address: resumeDto.emailAddress,
+        address: resumeDto.address,
+        post_code: resumeDto.postCode,
+        profile_image: resumeDto.profileImage,
+        created_date: new Date(),
+      });
+      await this.personRepository.save(person);
+    } else {
+      Object.assign(person, {
+        national_no: resumeDto.nationalNo,
+        first_name: resumeDto.firstName,
+        last_name: resumeDto.lastName,
+        birth_date: resumeDto.birthDate,
+        birth_place_id: resumeDto.birthPlaceId,
+        location_place_id: resumeDto.locationPlaceId,
+        sex_id: resumeDto.sexId,
+        aboaut_me: resumeDto.aboutMe,
+        mobile_number: resumeDto.mobileNumber,
+        telephone_number: resumeDto.telephoneNumber,
+        email_address: resumeDto.emailAddress,
+        address: resumeDto.address,
+        post_code: resumeDto.postCode,
+        profile_image: resumeDto.profileImage,
+      });
+      await this.personRepository.save(person);
+    }
+
+    // Save education
+    for (const education of resumeDto.educations) {
+      const educationEntity = this.educationRepository.create({
+        personId: person.id,
+        gradeId: education.gradeId,
+        levelId: education.levelId,
+        fieldId: education.fieldId,
+        instituteId: education.instituteId,
+        graduationDate: education.graduationDate,
+        adjusted: education.adjusted,
+        createdMethodId: 1, // Assuming 1 is the default method ID
+        tableId: 'uuid', // Replace with actual UUID generation
+        isActive: true,
+      });
+      await this.educationRepository.save(educationEntity);
+    }
+
+    // Save experience
+    for (const experience of resumeDto.experiences) {
+      const experienceEntity = this.experienceRepository.create({
+        personId: person.id,
+        jobTitle: experience.jobTitle,
+        companyName: experience.companyName,
+        companyLocationId: experience.companyLocationId,
+        startDate: experience.startDate,
+        endDate: experience.endDate,
+        createdMethodId: 1, // Assuming 1 is the default method ID
+        tableId: 'uuid', // Replace with actual UUID generation
+      });
+      await this.experienceRepository.save(experienceEntity);
+    }
+
+    // Save skills
+    for (const skill of resumeDto.skills) {
+      const skillEntity = this.skillRepository.create({
+        personId: person.id,
+        skillId: skill.skillId,
+        levelId: skill.levelId,
+        createdMethodId: 1, // Assuming 1 is the default method ID
+        tableId: 'uuid', // Replace with actual UUID generation
+      });
+      await this.skillRepository.save(skillEntity);
+    }
+
+    // Save certificates
+    for (const certificate of resumeDto.certificates) {
+      const certificateEntity = this.certificateRepository.create({
+        personId: person.id,
+        certificateTypeId: certificate.certificateTypeId,
+        comment: certificate.comment,
+        grantDate: certificate.grantDate,
+        certificateIssuer: certificate.certificateIssuer,
+        createdMethodId: 1, // Assuming 1 is the default method ID
+        tableId: 'uuid', // Replace with actual UUID generation
+      });
+      await this.certificateRepository.save(certificateEntity);
+    }
+
+    // Save additional information
+    const additionalInfoEntity = this.additionalInformationRepository.create({
+      personId: person.id,
+      fatherJobId: resumeDto.additionalInformation.fatherJobId,
+      fatherJobOrganId: resumeDto.additionalInformation.fatherJobOrganId,
+      motherJobId: resumeDto.additionalInformation.motherJobId,
+      motherJobOrganId: resumeDto.additionalInformation.motherJobOrganId,
+      wifeJobId: resumeDto.additionalInformation.wifeJobId,
+      wifeJobOrganId: resumeDto.additionalInformation.wifeJobOrganId,
+      childCount: resumeDto.additionalInformation.childCount,
+      incomeLevelId: resumeDto.additionalInformation.incomeLevelId,
+      brotherCount: resumeDto.additionalInformation.brotherCount,
+      sisterCount: resumeDto.additionalInformation.sisterCount,
+      fatherEducationGradeId: resumeDto.additionalInformation.fatherEducationGradeId,
+      motherEducationGradeId: resumeDto.additionalInformation.motherEducationGradeId,
+      childNumber: resumeDto.additionalInformation.childNumber,
+      createdMethodId: 1, // Assuming 1 is the default method ID
+      tableId: 'uuid', // Replace with actual UUID generation
+      isActive: true,
+    });
+    await this.additionalInformationRepository.save(additionalInfoEntity);
+
+    return { message: 'Resume saved successfully', personId: person.id };
+  }
+
+  async getUserResumes(userId: number): Promise<Person[]> {
+    const resumes = await this.personRepository.find({
+      where: { id: userId },
+      relations: [
+        'educations',
+        'experiences',
+        'skills',
+        'certificates',
+        'languageInfos',
+        'additionalInformations',
+        'contactInfos',
+        'documents',
+      ],
+    });
+
+    if (!resumes || resumes.length === 0) {
+      throw new NotFoundException(`No resumes found for user with ID ${userId}`);
+    }
+
+    return resumes;
   }
 } 

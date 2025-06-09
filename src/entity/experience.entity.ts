@@ -30,7 +30,7 @@ export class Experience extends Audit {
 
   @Column({ type: 'int' })
   createdMethodId: number;
-
+  
   @ManyToOne(() => Person, person => person.experiences)
   @JoinColumn({ name: 'person_id' })
   person: Person;
