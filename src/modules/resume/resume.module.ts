@@ -10,6 +10,11 @@ import { Skill } from '../../entity/skill.entity';
 import { Certificate } from '../../entity/certificate.entity';
 import { AdditionalInformation } from '../../entity/additional-information.entity';
 import { LanguageInfo } from '../../entity/language-info.entity';
+import { UserEntity } from './infrastructure/persistence/entities/user.entity';
+import { Resume } from './domain/entities/resume.entity';
+import { PersonalInfo } from './domain/entities/step1-personal-info.entity';
+import { Step1Controller } from './presentation/controllers/step1.controller';
+import { Step1Service } from './application/services/step1.service';
 
 @Module({
   imports: [
@@ -21,9 +26,12 @@ import { LanguageInfo } from '../../entity/language-info.entity';
       Certificate,
       AdditionalInformation,
       LanguageInfo,
+      UserEntity,
+      Resume,
+      PersonalInfo,
     ]),
   ],
-  controllers: [ResumeController],
+  controllers: [ResumeController, Step1Controller],
   providers: [
     ResumeRepository,
     {
@@ -37,6 +45,8 @@ import { LanguageInfo } from '../../entity/language-info.entity';
       },
       inject: ['IResumeRepository', 'PersonRepository', 'EducationRepository', 'ExperienceRepository', 'SkillRepository', 'CertificateRepository', 'AdditionalInformationRepository'],
     },
+    Step1Service,
   ],
+  exports: [Step1Service],
 })
 export class ResumeModule {} 
