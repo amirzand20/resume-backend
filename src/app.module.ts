@@ -1,31 +1,54 @@
-/* eslint-disable prettier/prettier */
-import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { ConfigModule } from '@nestjs/config';
+import { RequestContextMiddleware } from "@/common/middleware/request-context-middleware";
+import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
+import {APP_FILTER, APP_INTERCEPTOR, RouterModule} from '@nestjs/core';
+import { ApiClientModule } from './api-client/api-client.module';
 import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { ResumeModule } from './modules/resume/resume.module';
-import { AdminModule } from './modules/admin/admin.module';
-import { CommonModule } from './modules/common/common.module';
-import { AuthModule } from './modules/auth/auth.module';
-import { DatabaseModule } from './database/database.module';
+import { BootstrapModule } from './bootstrap/bootstrap.module';
+import { AllExceptionFilter } from './common/filters/exceptions/all-exception.filter';
+import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
+import { TransformInterceptor } from './common/interceptors/transform.interceptor';
+
+import { DomainModule } from './domain/domain.module';
+import { ScheduleModule } from "@nestjs/schedule";
+import { ConfigModule } from "@nestjs/config";
+import { RedisManagerModule } from "./bootstrap/redis/redis-manager.module";
 
 @Module({
   imports: [
+    BootstrapModule,
+    ApiClientModule,
+    DomainModule,
+    ScheduleModule.forRoot(),
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: '.env',
     }),
-    DatabaseModule,
-    ResumeModule,
-    AdminModule,
-    CommonModule,
-    AuthModule,
+    RedisManagerModule,
   ],
   controllers: [AppController],
   providers: [
-    AppService,
+    {
+      provide: APP_FILTER,
+      useClass: AllExceptionFilter,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: TransformInterceptor,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: LoggingInterceptor,
+    },
+/*    {
+      provide:APP_INTERCEPTOR,
+      useClass: HttpCacheInterceptor
+    }*/
   ],
+  exports: [BootstrapModule],
 })
-export class AppModule {}
-
+export class AppModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+        .apply(RequestContextMiddleware)
+        .forRoutes({path: '*', method: RequestMethod.ALL});
+  }
+}

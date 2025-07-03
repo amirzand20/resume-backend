@@ -1,16 +1,11 @@
 version: '3.8'
-
 services:
-  postgres:
-    image: postgres:13
-    ports:
-      - "5432:5432"
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=resume
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-
-volumes:
-  postgres_data:
+  duty-army-back:
+        image: exam-back-img
+        restart: always
+        ports:  
+          - "3004:3004"
+        env_file:
+          - .env
+        extra_hosts:
+          - "db.aja.local:192.168.70.3"
