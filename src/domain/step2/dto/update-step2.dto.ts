@@ -8,7 +8,6 @@ import {
   IsMobilePhone,
   Length,
   Min,
-  IsUUID,
   IsBoolean
 } from 'class-validator';
 
