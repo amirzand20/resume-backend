@@ -9,18 +9,18 @@ import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { AuthController } from './auth.controller';
 import { OAuthJwtStrategy } from './strategies/oauth-jwt.strategy';
-import { VolunteerInfoModule } from '@/domain/common/volunteer-info/volunteer-info.module';
-import { ExamPersonModule } from '@/domain/common/exam-person/exam-person.module';
+// import { VolunteerInfoModule } from '@/domain/common/volunteer-info/volunteer-info.module';
+// import { ExamPersonModule } from '@/domain/common/exam-person/exam-person.module';
 
 @Module({
   imports: [
     ApiClientModule,
     HttpClientModule,
-    VolunteerInfoModule,
+    // VolunteerInfoModule,
     PassportModule,
-    ExamPersonModule,
+    // ExamPersonModule,
     JwtModule.register({
-      secret: process.env.JWT_SECRTET,
+      secret: process.env.JWT_SECRET,
       signOptions: {
         expiresIn: '1d',
         algorithm: 'HS256',

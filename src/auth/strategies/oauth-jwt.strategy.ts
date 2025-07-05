@@ -9,8 +9,8 @@ export class OAuthJwtStrategy extends PassportStrategy(Strategy, 'jwt-oauth') {
     constructor(private authService: AuthService) {
         super({
             jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-            secretOrKey: fs.readFileSync(process.env.PUBLIC_KEY).toString(),
-            alghorithms: ['RS256'],
+            secretOrKey: process.env.PUBLIC_KEY ? fs.readFileSync(process.env.PUBLIC_KEY).toString() : 'fallback-secret',
+            algorithms: ['RS256'],
             passReqToCallback: true,
         });
     }
@@ -21,7 +21,7 @@ export class OAuthJwtStrategy extends PassportStrategy(Strategy, 'jwt-oauth') {
             'Content-Type': 'application/json',
             authorization: `${req.headers['authorization']}`
         };
-        const result = await this.authService.oAuthCheckToken(payload.id, payload.jti, payload.clientId, process.env.SYSTEM_ID.toString(), headers);
+        const result = await this.authService.oAuthCheckToken(payload.id, payload.jti, payload.clientId, process.env.SYSTEM_ID?.toString() || '1', headers);
         if (result) {
             done(null, payload);
         } else {

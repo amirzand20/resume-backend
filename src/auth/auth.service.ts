@@ -3,7 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as https from 'https';
 import { NotFoundException } from "@nestjs/common/exceptions/not-found.exception";
-import { ExamPersonRepository } from '@/domain/common/exam-person/exam-person.repository';
+// import { ExamPersonRepository } from '@/domain/common/exam-person/exam-person.repository';
 
 @Injectable()
 export class AuthService {
@@ -14,16 +14,17 @@ export class AuthService {
     constructor(
         private apiClient: ApiClientService,
         private jwtService: JwtService,
-        private examPersonRepository: ExamPersonRepository,
+        // private examPersonRepository: ExamPersonRepository,
     ) {
     }
 
     async validateUser(username: string, password: string) {
-        const _examPersonel = await this.examPersonRepository.getByUserAndPassword(username, password)
-        if (_examPersonel) {
-            return _examPersonel
-        }
-        throw new NotFoundException('کاربری با این مشخصات وجود ندارد');
+        // const _examPersonel = await this.examPersonRepository.getByUserAndPassword(username, password)
+        // if (_examPersonel) {
+        //     return _examPersonel
+        // }
+        // throw new NotFoundException('کاربری با این مشخصات وجود ندارد');
+        return { id: 1, username: username }; // Temporary mock
     }
 
     async login(user: any) {
