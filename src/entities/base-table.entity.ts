@@ -7,20 +7,20 @@ export class BaseTable extends Audit {
   @PrimaryGeneratedColumn({ type: 'bigint' })
   id: number;
 
-  @Column({ type: 'bigint', nullable: true })
+  @Column({ type: 'bigint', nullable: true, name: 'parent_id' })
   parentId: number;
 
   @Column({ type: 'varchar' })
   title: string;
 
-  @Column({ type: 'int' })
+  @Column({ type: 'int', name: 'created_method_id' })
   createdMethodId: number;
 
-  @Column({ type: 'uuid' })
+  @Column({ type: 'uuid', name: 'table_id' })
   tableId: string;
 
   @ManyToOne(() => BaseTable, baseTable => baseTable.children)
-  @JoinColumn({ name: 'parentId' })
+  @JoinColumn({ name: 'parent_id' })
   parent: BaseTable;
 
   @OneToMany(() => BaseTable, baseTable => baseTable.parent)

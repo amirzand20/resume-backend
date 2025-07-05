@@ -7,22 +7,22 @@ export class Skill extends Audit {
   @PrimaryGeneratedColumn({ type: 'bigint' })
   id: number;
 
-  @Column({ type: 'bigint' })
+  @Column({ type: 'bigint', name: 'person_id' })
   personId: number;
 
-  @Column({ type: 'int' })
+  @Column({ type: 'int', name: 'skill_type_id' })
   skillTypeId: number;
 
-  @Column({ type: 'int' })
+  @Column({ type: 'int', name: 'skill_level' })
   skillLevel: number;
 
-  @Column({ type: 'int' })
+  @Column({ type: 'int', name: 'created_method_id' })
   createdMethodId: number;
 
-  @Column({ type: 'uuid' })
+  @Column({ type: 'uuid', name: 'table_id' })
   tableId: string;
 
   @ManyToOne(() => Person, person => person.skills)
-  @JoinColumn({ name: 'personId' })
+  @JoinColumn({ name: 'person_id' })
   person: Person;
 }

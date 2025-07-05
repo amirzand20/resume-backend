@@ -17,54 +17,55 @@ import {Property} from "./property.entity";
 import {Skill} from "./skill.entity";
 
 @Entity('tb_person')
+@Index('ix_recruitment_tb_person_national_no', ['nationalNo'], { unique: true })
 export class Person {
   @PrimaryGeneratedColumn({ type: 'bigint' })
   id: number;
 
-  @Column({ type: 'varchar', length: 10, name: 'national_no' })
-  national_no: string;
+  @Column({ type: 'varchar', length: 10, nullable: false, name: 'national_no' })
+  nationalNo: string;
 
   @Column({ type: 'varchar', length: 50, nullable: false, name: 'first_name' })
-  first_name: string;
+  firstName: string;
 
   @Column({ type: 'varchar', length: 50, nullable: false, name: 'last_name' })
-  last_name: string;
+  lastName: string;
 
   @Column({ type: 'date', nullable: false, name: 'birth_date' })
-  birth_date: Date;
+  birthDate: Date;
 
   @Column({ type: 'int', nullable: false, name: 'birth_place_id' })
-  birth_place_id: number;
+  birthPlaceId: number;
 
   @Column({ type: 'int', nullable: true, name: 'location_place_id' })
-  location_place_id: number;
+  locationPlaceId: number;
 
   @Column({ type: 'int', nullable: false, name: 'sex_id' })
-  sex_id: number;
+  sexId: number;
 
   @Column({ type: 'varchar', length: 500, nullable: true, name: 'about_me' })
-  aboaut_me: string;
+  aboutMe: string;
 
   @Column({ type: 'varchar', length: 15, nullable: false, name: 'mobile_number' })
-  mobile_number: string;
+  mobileNumber: string;
 
   @Column({ type: 'varchar', length: 20, nullable: true, name: 'telephone_number' })
-  telephone_number: string;
+  telephoneNumber: string;
 
   @Column({ type: 'varchar', length: 50, nullable: true, name: 'email_address' })
-  email_address: string;
+  emailAddress: string;
 
   @Column({ type: 'varchar', length: 200, nullable: true, name: 'address' })
   address: string;
 
   @Column({ type: 'char', length: 10, nullable: true, name: 'post_code' })
-  post_code: string;
+  postCode: string;
 
   @Column({ type: 'varchar', length: 100, nullable: true, name: 'profile_image' })
-  profile_image: string;
+  profileImage: string;
 
   @Column({ type: 'timestamp', nullable: false, name: 'created_date' })
-  created_date: Date;
+  createdDate: Date;
 
   @OneToMany(() => Certificate,(certificates)=>certificates.person)
   certificates: Certificate[];

@@ -23,11 +23,11 @@ export class User {
   @ApiProperty({ description: 'The role of the user', enum: ['admin', 'user'] })
   role: string;
 
-  @Column({ type: 'boolean', default: true })
+  @Column({ type: 'boolean', default: true, name: 'is_active' })
   @ApiProperty({ description: 'Whether the user is active' })
   isActive: boolean;
 
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', name: 'created_at' })
   @ApiProperty({ description: 'When the user was created' })
   createdAt: Date;
 } 

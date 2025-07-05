@@ -7,31 +7,31 @@ export class Experience extends Audit {
   @PrimaryGeneratedColumn({ type: 'bigint' })
   id: number;
 
-  @Column({ type: 'bigint' })
+  @Column({ type: 'bigint', name: 'person_id' })
   personId: number;
 
-  @Column({ type: 'int' })
+  @Column({ type: 'int', name: 'job_type_id' })
   jobTypeId: number;
 
-  @Column({ type: 'int' })
+  @Column({ type: 'int', name: 'job_organ_id' })
   jobOrganId: number;
 
-  @Column({ type: 'varchar' })
+  @Column({ type: 'varchar', name: 'job_title' })
   jobTitle: string;
 
-  @Column({ type: 'date' })
+  @Column({ type: 'date', name: 'start_date' })
   startDate: Date;
 
-  @Column({ type: 'date' })
+  @Column({ type: 'date', name: 'end_date' })
   endDate: Date;
 
-  @Column({ type: 'int' })
+  @Column({ type: 'int', name: 'created_method_id' })
   createdMethodId: number;
 
-  @Column({ type: 'uuid' })
+  @Column({ type: 'uuid', name: 'table_id' })
   tableId: string;
 
   @ManyToOne(() => Person, person => person.experiences)
-  @JoinColumn({ name: 'personId' })
+  @JoinColumn({ name: 'person_id' })
   person: Person;
 }

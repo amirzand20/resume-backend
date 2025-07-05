@@ -6,15 +6,15 @@ export class EmployeeFieldTest extends Audit {
   @PrimaryGeneratedColumn({ type: 'bigint' })
   id: number;
 
-  @Column({ type: 'int' })
+  @Column({ type: 'int', name: 'employee_type_id' })
   employeeTypeId: number;
 
-  @Column({ type: 'int', nullable: true })
+  @Column({ type: 'int', nullable: true, name: 'employee_field_id' })
   employeeFieldId: number;
 
-  @Column({ type: 'int' })
+  @Column({ type: 'int', name: 'test_type_id' })
   testTypeId: number;
 
-  @Column({ type: 'boolean', default: true })
+  @Column({ type: 'boolean', default: true, name: 'is_active' })
   isActive: boolean;
 }

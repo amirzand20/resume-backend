@@ -15,6 +15,7 @@ import { PersonnelInCourseModule } from './personnel-in-course/personnel-in-cour
 import { SkillModule } from './skill/skill.module';
 import { PropertiesModule } from './properties/properties.module';
 import { PropertyModule } from './property/property.module';
+import { Step1Module } from './step1/step1.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { PropertyModule } from './property/property.module';
     PropertiesModule,
     PropertyModule,
     SkillModule,
+    Step1Module,
   ],
   providers: [],
   exports: [
@@ -53,6 +55,7 @@ import { PropertyModule } from './property/property.module';
     PropertiesModule,
     PropertyModule,
     SkillModule,
+    Step1Module,
   ],
 })
 export class DomainModule {}

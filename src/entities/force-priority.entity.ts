@@ -7,22 +7,22 @@ export class ForcePriority extends Audit {
   @PrimaryGeneratedColumn({ type: 'bigint' })
   id: number;
 
-  @Column({ type: 'bigint' })
+  @Column({ type: 'bigint', name: 'applicant_id' })
   applicantId: number;
 
-  @Column({ type: 'int' })
+  @Column({ type: 'int', name: 'force_id' })
   forceId: number;
 
-  @Column({ type: 'int' })
+  @Column({ type: 'int', name: 'priority_number' })
   priorityNumber: number;
 
-  @Column({ type: 'int' })
+  @Column({ type: 'int', name: 'created_method_id' })
   createdMethodId: number;
 
-  @Column({ type: 'uuid' })
+  @Column({ type: 'uuid', name: 'table_id' })
   tableId: string;
 
   @ManyToOne(() => Applicant, applicant => applicant.forcePriorities)
-  @JoinColumn({ name: 'applicantId' })
+  @JoinColumn({ name: 'applicant_id' })
   applicant: Applicant;
 }
