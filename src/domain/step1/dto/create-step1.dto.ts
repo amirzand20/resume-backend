@@ -24,7 +24,7 @@ export class CreateStep1Dto {
   @IsString()
   @IsNotEmpty({ message: 'کد ملی الزامی است' })
   @Length(10, 10, { message: 'کد ملی باید 10 رقم باشد' })
-  @IsValidNationalNo({ message: 'کد ملی وارد شده نامعتبر است' })
+  // @IsValidNationalNo({ message: 'کد ملی وارد شده نامعتبر است' })
   nationalNo: string;
 
   @ApiProperty({ 

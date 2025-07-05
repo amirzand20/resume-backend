@@ -16,6 +16,7 @@ import { SkillModule } from './skill/skill.module';
 import { PropertiesModule } from './properties/properties.module';
 import { PropertyModule } from './property/property.module';
 import { Step1Module } from './step1/step1.module';
+import {Step2Module} from "@/domain/step2/step2.module";
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { Step1Module } from './step1/step1.module';
     PropertyModule,
     SkillModule,
     Step1Module,
+      Step2Module
   ],
   providers: [],
   exports: [
@@ -56,6 +58,7 @@ import { Step1Module } from './step1/step1.module';
     PropertyModule,
     SkillModule,
     Step1Module,
+      Step2Module
   ],
 })
 export class DomainModule {}
