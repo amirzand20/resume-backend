@@ -20,7 +20,7 @@ export class AllExceptionFilter implements ExceptionFilter {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
     const request:any = ctx.getRequest<Request>();
-    var ip: string = currentRequest.ip.startsWith('::ffff:')?currentRequest.ip.replace(/^::ffff:/,''):currentRequest.ip;
+    // var ip: string = currentRequest.ip.startsWith('::ffff:')?currentRequest.ip.replace(/^::ffff:/,''):currentRequest.ip;
     const statusCode =
       exception instanceof HttpException
         ? exception.getStatus()

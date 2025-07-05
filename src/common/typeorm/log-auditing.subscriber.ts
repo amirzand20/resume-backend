@@ -29,9 +29,9 @@ export class LogAuditingSubscriber implements EntitySubscriberInterface {
             let currentUser = RequestContext.currentUser();
             const currentRequest = RequestContext.currentRequest();
             // @ts-ignore
-            var ip: string = currentRequest.ip.startsWith('::ffff:')?currentRequest.ip.replace(/^::ffff:/,''):currentRequest.ip;
-            return event.manager.query(`EXEC dbo.usp_InsertDataLog @DatabaseName=@0 , @TableName=@1 , @ActionTypeId=@2 , @RequestIp=@3 , @UserId=@4 , @JsonData=@5 , @UpdatedJsonData=@6`,
-                [event.connection.options.database, event.metadata.tablePath, LogActionTypeEnum.Insert, ip, currentUser.userSeq, JSON.stringify(event.entity), null])
+            // var ip: string = currentRequest.ip.startsWith('::ffff:')?currentRequest.ip.replace(/^::ffff:/,''):currentRequest.ip;
+            // return event.manager.query(`EXEC dbo.usp_InsertDataLog @DatabaseName=@0 , @TableName=@1 , @ActionTypeId=@2 , @RequestIp=@3 , @UserId=@4 , @JsonData=@5 , @UpdatedJsonData=@6`,
+            //     [event.connection.options.database, event.metadata.tablePath, LogActionTypeEnum.Insert, ip, currentUser.userSeq, JSON.stringify(event.entity), null])
         }
     }
 

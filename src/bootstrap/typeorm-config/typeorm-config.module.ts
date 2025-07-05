@@ -22,7 +22,7 @@ import {EncryptionHelper} from "@/common/utils/encryption-helper";
                     password: configService.get('DB_PASSWORD') || 'postgres',
                     database: configService.get('DB_NAME') || 'resume_db',
                     entities: [__dirname + '/../../entities/*.entity{.ts,.js}'],
-                    synchronize: false,
+                    synchronize: true,
                     namingStrategy: new CustomNamingStrategy(),
                     extra: {
                         trustServerCertificate: true,
