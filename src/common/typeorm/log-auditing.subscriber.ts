@@ -10,9 +10,18 @@ export class LogAuditingSubscriber implements EntitySubscriberInterface {
     private auditedEntities: string[] = []
 
     constructor() {
-        this.auditedEntities = fs.readFileSync(process.env.log_audit_entities_file).toString().split(',').map(e => {
-            return e.trim()
-        });
+        try {
+            if (process.env.log_audit_entities_file) {
+                this.auditedEntities = fs.readFileSync(process.env.log_audit_entities_file).toString().split(',').map(e => {
+                    return e.trim()
+                });
+            } else {
+                this.auditedEntities = []; // Default empty array
+            }
+        } catch (error) {
+            console.warn('Could not load audited entities file:', error.message);
+            this.auditedEntities = [];
+        }
     }
 
     async afterInsert(event: InsertEvent<any>): Promise<any> {

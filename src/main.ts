@@ -52,7 +52,7 @@ async function bootstrap() {
     }),
   );
 
-  const port = configService.get('app.port');
+  const port = configService.get("PORT");
   await app.listen(port);
   console.info('----------------------------------------------------');
   console.info(`| Server URL: https://localhost:${port}             |`);
