@@ -1,42 +1,63 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectMapper } from '@automapper/nestjs';
+import { Mapper } from '@automapper/core';
 import { PropertyRepository } from './property.repository';
 import { CreatePropertyDto } from './dto/create-property.dto';
 import { UpdatePropertyDto } from './dto/update-property.dto';
 import { ReadPropertyDto } from './dto/read-property.dto';
 import { QueryListResultDto } from '@/common/dto/result/query-list-result.dto';
 import { SortParam } from '@/common/dto/request-params/sort-param';
+import { Property } from '@/entities/property.entity';
 
 @Injectable()
 export class PropertyService {
-  constructor(private readonly repository: PropertyRepository) {}
+  constructor(
+    private readonly repository: PropertyRepository,
+    @InjectMapper() private readonly mapper: Mapper,
+  ) {}
 
   async create(data: CreatePropertyDto): Promise<ReadPropertyDto> {
-    const property = await this.repository.create(data);
-    return this.mapToReadDto(property);
+    const property = await this.mapper.mapAsync(
+      data,
+      CreatePropertyDto,
+      Property,
+    );
+    const saveResult = await this.repository.save(property);
+    return this.mapper.map(saveResult, Property, ReadPropertyDto);
   }
 
   async update(id: number, data: UpdatePropertyDto): Promise<ReadPropertyDto> {
-    const property = await this.repository.update(id, data);
+    const property = await this.repository.findOne({ where: { id } });
     if (!property) {
       throw new NotFoundException(`Property with ID ${id} not found`);
     }
-    return this.mapToReadDto(property);
+    
+    const updatedProperty = await this.mapper.mapAsync(
+      data,
+      UpdatePropertyDto,
+      Property,
+    );
+    Object.assign(property, updatedProperty);
+    
+    const saveResult = await this.repository.save(property);
+    return this.mapper.map(saveResult, Property, ReadPropertyDto);
   }
 
   async deleteById(id: number): Promise<ReadPropertyDto> {
-    const property = await this.repository.deleteById(id);
+    const property = await this.repository.findOne({ where: { id } });
     if (!property) {
       throw new NotFoundException(`Property with ID ${id} not found`);
     }
-    return this.mapToReadDto(property);
+    await this.repository.remove(property);
+    return this.mapper.map(property, Property, ReadPropertyDto);
   }
 
   async getById(id: number): Promise<ReadPropertyDto> {
-    const property = await this.repository.getById(id);
+    const property = await this.repository.findOne({ where: { id } });
     if (!property) {
       throw new NotFoundException(`Property with ID ${id} not found`);
     }
-    return this.mapToReadDto(property);
+    return this.mapper.map(property, Property, ReadPropertyDto);
   }
 
   async getAll(
@@ -45,22 +66,10 @@ export class PropertyService {
     page: number = 1,
     pageLimit: number = 10,
   ): Promise<QueryListResultDto<ReadPropertyDto>> {
-    return await this.repository.getAll(filter, sort, page, pageLimit);
-  }
-
-  private mapToReadDto(property: any): ReadPropertyDto {
+    const [data, total] = await this.repository.getAll(filter, sort, page, pageLimit);
     return {
-      id: property.id,
-      personId: property.personId,
-      propertyTypeId: property.propertyTypeId,
-      propertyInfo: property.propertyInfo,
-      tableId: property.tableId,
-      createdMethodId: property.createdMethodId,
-      isActive: property.isActive,
-      createdDate: property.createdDate,
-      modifiedDate: property.updatedDate,
-      createdBy: parseInt(property.createdBy),
-      modifiedBy: property.updatedBy ? parseInt(property.updatedBy) : 0,
+      total,
+      data: this.mapper.mapArray(data, Property, ReadPropertyDto),
     };
   }
 } 

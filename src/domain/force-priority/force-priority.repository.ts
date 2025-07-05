@@ -9,32 +9,12 @@ import { QueryListResultDto } from '@/common/dto/result/query-list-result.dto';
 import { SortParam } from '@/common/dto/request-params/sort-param';
 
 @Injectable()
-export class ForcePriorityRepository {
+export class ForcePriorityRepository extends Repository<ForcePriority> {
   constructor(
     @InjectRepository(ForcePriority)
     private readonly repository: Repository<ForcePriority>,
-  ) {}
-
-  async create(data: CreateForcePriorityDto): Promise<ForcePriority> {
-    const forcePriority = this.repository.create(data);
-    return await this.repository.save(forcePriority);
-  }
-
-  async update(id: number, data: UpdateForcePriorityDto): Promise<ForcePriority> {
-    await this.repository.update(id, data);
-    return await this.repository.findOne({ where: { id } });
-  }
-
-  async deleteById(id: number): Promise<ForcePriority> {
-    const forcePriority = await this.repository.findOne({ where: { id } });
-    if (forcePriority) {
-      await this.repository.delete(id);
-    }
-    return forcePriority;
-  }
-
-  async getById(id: number): Promise<ForcePriority> {
-    return await this.repository.findOne({ where: { id } });
+  ) {
+    super(repository.target, repository.manager, repository.queryRunner);
   }
 
   async getAll(
@@ -42,7 +22,7 @@ export class ForcePriorityRepository {
     sort: SortParam = { field: '', order: '' },
     page: number = 1,
     pageLimit: number = 10,
-  ): Promise<QueryListResultDto<ReadForcePriorityDto>> {
+  ): Promise<[ForcePriority[], number]> {
     const queryBuilder = this.repository.createQueryBuilder('forcePriority');
 
     // Apply filters
@@ -51,6 +31,9 @@ export class ForcePriorityRepository {
     }
     if (filter.forceId) {
       queryBuilder.andWhere('forcePriority.forceId = :forceId', { forceId: filter.forceId });
+    }
+    if (filter.priorityNumber) {
+      queryBuilder.andWhere('forcePriority.priorityNumber = :priorityNumber', { priorityNumber: filter.priorityNumber });
     }
     if (filter.createdMethodId) {
       queryBuilder.andWhere('forcePriority.createdMethodId = :createdMethodId', { createdMethodId: filter.createdMethodId });
@@ -67,26 +50,6 @@ export class ForcePriorityRepository {
     const skip = (page - 1) * pageLimit;
     queryBuilder.skip(skip).take(pageLimit);
 
-    const [items, total] = await queryBuilder.getManyAndCount();
-
-    return {
-      data: items.map(item => this.mapToReadDto(item)),
-      total,
-    };
-  }
-
-  private mapToReadDto(forcePriority: ForcePriority): ReadForcePriorityDto {
-    return {
-      id: forcePriority.id,
-      applicantId: forcePriority.applicantId,
-      forceId: forcePriority.forceId,
-      priorityNumber: forcePriority.priorityNumber,
-      createdMethodId: forcePriority.createdMethodId,
-      tableId: forcePriority.tableId,
-      createdDate: forcePriority.createdDate,
-      modifiedDate: forcePriority.updatedDate,
-      createdBy: parseInt(forcePriority.createdBy),
-      modifiedBy: forcePriority.updatedBy ? parseInt(forcePriority.updatedBy) : 0,
-    };
+    return await queryBuilder.getManyAndCount();
   }
 } 

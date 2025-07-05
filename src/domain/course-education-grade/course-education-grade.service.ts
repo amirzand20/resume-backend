@@ -1,42 +1,63 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectMapper } from '@automapper/nestjs';
+import { Mapper } from '@automapper/core';
 import { CourseEducationGradeRepository } from './course-education-grade.repository';
 import { CreateCourseEducationGradeDto } from './dto/create-course-education-grade.dto';
 import { UpdateCourseEducationGradeDto } from './dto/update-course-education-grade.dto';
 import { ReadCourseEducationGradeDto } from './dto/read-course-education-grade.dto';
 import { QueryListResultDto } from '@/common/dto/result/query-list-result.dto';
 import { SortParam } from '@/common/dto/request-params/sort-param';
+import { CourseEducationGrade } from '@/entities/course-education-grade.entity';
 
 @Injectable()
 export class CourseEducationGradeService {
-  constructor(private readonly repository: CourseEducationGradeRepository) {}
+  constructor(
+    private readonly repository: CourseEducationGradeRepository,
+    @InjectMapper() private readonly mapper: Mapper,
+  ) {}
 
   async create(data: CreateCourseEducationGradeDto): Promise<ReadCourseEducationGradeDto> {
-    const courseEducationGrade = await this.repository.create(data);
-    return this.mapToReadDto(courseEducationGrade);
+    const courseEducationGrade = await this.mapper.mapAsync(
+      data,
+      CreateCourseEducationGradeDto,
+      CourseEducationGrade,
+    );
+    const saveResult = await this.repository.save(courseEducationGrade);
+    return this.mapper.map(saveResult, CourseEducationGrade, ReadCourseEducationGradeDto);
   }
 
   async update(id: number, data: UpdateCourseEducationGradeDto): Promise<ReadCourseEducationGradeDto> {
-    const courseEducationGrade = await this.repository.update(id, data);
+    const courseEducationGrade = await this.repository.findOne({ where: { id } });
     if (!courseEducationGrade) {
       throw new NotFoundException(`CourseEducationGrade with ID ${id} not found`);
     }
-    return this.mapToReadDto(courseEducationGrade);
+    
+    const updatedCourseEducationGrade = await this.mapper.mapAsync(
+      data,
+      UpdateCourseEducationGradeDto,
+      CourseEducationGrade,
+    );
+    Object.assign(courseEducationGrade, updatedCourseEducationGrade);
+    
+    const saveResult = await this.repository.save(courseEducationGrade);
+    return this.mapper.map(saveResult, CourseEducationGrade, ReadCourseEducationGradeDto);
   }
 
   async deleteById(id: number): Promise<ReadCourseEducationGradeDto> {
-    const courseEducationGrade = await this.repository.deleteById(id);
+    const courseEducationGrade = await this.repository.findOne({ where: { id } });
     if (!courseEducationGrade) {
       throw new NotFoundException(`CourseEducationGrade with ID ${id} not found`);
     }
-    return this.mapToReadDto(courseEducationGrade);
+    await this.repository.remove(courseEducationGrade);
+    return this.mapper.map(courseEducationGrade, CourseEducationGrade, ReadCourseEducationGradeDto);
   }
 
   async getById(id: number): Promise<ReadCourseEducationGradeDto> {
-    const courseEducationGrade = await this.repository.getById(id);
+    const courseEducationGrade = await this.repository.findOne({ where: { id } });
     if (!courseEducationGrade) {
       throw new NotFoundException(`CourseEducationGrade with ID ${id} not found`);
     }
-    return this.mapToReadDto(courseEducationGrade);
+    return this.mapper.map(courseEducationGrade, CourseEducationGrade, ReadCourseEducationGradeDto);
   }
 
   async getAll(
@@ -45,22 +66,10 @@ export class CourseEducationGradeService {
     page: number = 1,
     pageLimit: number = 10,
   ): Promise<QueryListResultDto<ReadCourseEducationGradeDto>> {
-    return await this.repository.getAll(filter, sort, page, pageLimit);
-  }
-
-  private mapToReadDto(courseEducationGrade: any): ReadCourseEducationGradeDto {
+    const [data, total] = await this.repository.getAll(filter, sort, page, pageLimit);
     return {
-      id: courseEducationGrade.id,
-      courseId: courseEducationGrade.courseId,
-      educationGradeId: courseEducationGrade.educationGradeId,
-      educationFieldId: courseEducationGrade.educationFieldId,
-      adjustedMin: courseEducationGrade.adjustedMin,
-      createdMethodId: courseEducationGrade.createdMethodId,
-      tableId: courseEducationGrade.tableId,
-      createdDate: courseEducationGrade.createdDate,
-      modifiedDate: courseEducationGrade.updatedDate,
-      createdBy: parseInt(courseEducationGrade.createdBy),
-      modifiedBy: courseEducationGrade.updatedBy ? parseInt(courseEducationGrade.updatedBy) : 0,
+      total,
+      data: this.mapper.mapArray(data, CourseEducationGrade, ReadCourseEducationGradeDto),
     };
   }
 } 

@@ -4,6 +4,7 @@ import { Skill } from '@/entities/skill.entity';
 import { SkillRepository } from './skill.repository';
 import { SkillService } from './skill.service';
 import { SkillController } from './skill.controller';
+import { SkillProfile } from './skill.profile';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { SkillController } from './skill.controller';
   providers: [
     SkillRepository,
     SkillService,
+    SkillProfile,
   ],
   exports: [SkillRepository, SkillService],
 })

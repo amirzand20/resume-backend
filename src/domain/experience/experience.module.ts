@@ -4,6 +4,7 @@ import { Experience } from '@/entities/experience.entity';
 import { ExperienceRepository } from './experience.repository';
 import { ExperienceService } from './experience.service';
 import { ExperienceController } from './experience.controller';
+import { ExperienceProfile } from './experience.profile';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { ExperienceController } from './experience.controller';
   providers: [
     ExperienceRepository,
     ExperienceService,
+    ExperienceProfile,
   ],
   exports: [ExperienceRepository, ExperienceService],
 })

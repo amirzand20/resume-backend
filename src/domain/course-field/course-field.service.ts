@@ -1,42 +1,63 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectMapper } from '@automapper/nestjs';
+import { Mapper } from '@automapper/core';
 import { CourseFieldRepository } from './course-field.repository';
 import { CreateCourseFieldDto } from './dto/create-course-field.dto';
 import { UpdateCourseFieldDto } from './dto/update-course-field.dto';
 import { ReadCourseFieldDto } from './dto/read-course-field.dto';
 import { QueryListResultDto } from '@/common/dto/result/query-list-result.dto';
 import { SortParam } from '@/common/dto/request-params/sort-param';
+import { CourseField } from '@/entities/course-field.entity';
 
 @Injectable()
 export class CourseFieldService {
-  constructor(private readonly repository: CourseFieldRepository) {}
+  constructor(
+    private readonly repository: CourseFieldRepository,
+    @InjectMapper() private readonly mapper: Mapper,
+  ) {}
 
   async create(data: CreateCourseFieldDto): Promise<ReadCourseFieldDto> {
-    const courseField = await this.repository.create(data);
-    return this.mapToReadDto(courseField);
+    const courseField = await this.mapper.mapAsync(
+      data,
+      CreateCourseFieldDto,
+      CourseField,
+    );
+    const saveResult = await this.repository.save(courseField);
+    return this.mapper.map(saveResult, CourseField, ReadCourseFieldDto);
   }
 
   async update(id: number, data: UpdateCourseFieldDto): Promise<ReadCourseFieldDto> {
-    const courseField = await this.repository.update(id, data);
+    const courseField = await this.repository.findOne({ where: { id } });
     if (!courseField) {
       throw new NotFoundException(`CourseField with ID ${id} not found`);
     }
-    return this.mapToReadDto(courseField);
+    
+    const updatedCourseField = await this.mapper.mapAsync(
+      data,
+      UpdateCourseFieldDto,
+      CourseField,
+    );
+    Object.assign(courseField, updatedCourseField);
+    
+    const saveResult = await this.repository.save(courseField);
+    return this.mapper.map(saveResult, CourseField, ReadCourseFieldDto);
   }
 
   async deleteById(id: number): Promise<ReadCourseFieldDto> {
-    const courseField = await this.repository.deleteById(id);
+    const courseField = await this.repository.findOne({ where: { id } });
     if (!courseField) {
       throw new NotFoundException(`CourseField with ID ${id} not found`);
     }
-    return this.mapToReadDto(courseField);
+    await this.repository.remove(courseField);
+    return this.mapper.map(courseField, CourseField, ReadCourseFieldDto);
   }
 
   async getById(id: number): Promise<ReadCourseFieldDto> {
-    const courseField = await this.repository.getById(id);
+    const courseField = await this.repository.findOne({ where: { id } });
     if (!courseField) {
       throw new NotFoundException(`CourseField with ID ${id} not found`);
     }
-    return this.mapToReadDto(courseField);
+    return this.mapper.map(courseField, CourseField, ReadCourseFieldDto);
   }
 
   async getAll(
@@ -45,21 +66,10 @@ export class CourseFieldService {
     page: number = 1,
     pageLimit: number = 10,
   ): Promise<QueryListResultDto<ReadCourseFieldDto>> {
-    return await this.repository.getAll(filter, sort, page, pageLimit);
-  }
-
-  private mapToReadDto(courseField: any): ReadCourseFieldDto {
+    const [data, total] = await this.repository.getAll(filter, sort, page, pageLimit);
     return {
-      id: courseField.id,
-      courseId: courseField.courseId,
-      courseFieldId: courseField.courseFieldId,
-      capacity: courseField.capacity,
-      createdMethodId: courseField.createdMethodId,
-      tableId: courseField.tableId,
-      createdDate: courseField.createdDate,
-      modifiedDate: courseField.updatedDate,
-      createdBy: parseInt(courseField.createdBy),
-      modifiedBy: courseField.updatedBy ? parseInt(courseField.updatedBy) : 0,
+      total,
+      data: this.mapper.mapArray(data, CourseField, ReadCourseFieldDto),
     };
   }
 } 

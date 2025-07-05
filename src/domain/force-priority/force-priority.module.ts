@@ -4,6 +4,7 @@ import { ForcePriority } from '@/entities/force-priority.entity';
 import { ForcePriorityRepository } from './force-priority.repository';
 import { ForcePriorityService } from './force-priority.service';
 import { ForcePriorityController } from './force-priority.controller';
+import { ForcePriorityProfile } from './force-priority.profile';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { ForcePriorityController } from './force-priority.controller';
   providers: [
     ForcePriorityRepository,
     ForcePriorityService,
+    ForcePriorityProfile,
   ],
   exports: [ForcePriorityRepository, ForcePriorityService],
 })

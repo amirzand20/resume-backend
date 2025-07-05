@@ -31,9 +31,9 @@ import { PropertyModule } from './property/property.module';
     ForcePriorityModule,
     LanguageInfoModule,
     PersonnelInCourseModule,
-    SkillModule,
     PropertiesModule,
     PropertyModule,
+    SkillModule,
   ],
   providers: [],
   exports: [
@@ -50,9 +50,9 @@ import { PropertyModule } from './property/property.module';
     ForcePriorityModule,
     LanguageInfoModule,
     PersonnelInCourseModule,
-    SkillModule,
     PropertiesModule,
     PropertyModule,
+    SkillModule,
   ],
 })
 export class DomainModule {}

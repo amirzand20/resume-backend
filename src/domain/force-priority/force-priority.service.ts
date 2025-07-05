@@ -1,42 +1,63 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectMapper } from '@automapper/nestjs';
+import { Mapper } from '@automapper/core';
 import { ForcePriorityRepository } from './force-priority.repository';
 import { CreateForcePriorityDto } from './dto/create-force-priority.dto';
 import { UpdateForcePriorityDto } from './dto/update-force-priority.dto';
 import { ReadForcePriorityDto } from './dto/read-force-priority.dto';
 import { QueryListResultDto } from '@/common/dto/result/query-list-result.dto';
 import { SortParam } from '@/common/dto/request-params/sort-param';
+import { ForcePriority } from '@/entities/force-priority.entity';
 
 @Injectable()
 export class ForcePriorityService {
-  constructor(private readonly repository: ForcePriorityRepository) {}
+  constructor(
+    private readonly repository: ForcePriorityRepository,
+    @InjectMapper() private readonly mapper: Mapper,
+  ) {}
 
   async create(data: CreateForcePriorityDto): Promise<ReadForcePriorityDto> {
-    const forcePriority = await this.repository.create(data);
-    return this.mapToReadDto(forcePriority);
+    const forcePriority = await this.mapper.mapAsync(
+      data,
+      CreateForcePriorityDto,
+      ForcePriority,
+    );
+    const saveResult = await this.repository.save(forcePriority);
+    return this.mapper.map(saveResult, ForcePriority, ReadForcePriorityDto);
   }
 
   async update(id: number, data: UpdateForcePriorityDto): Promise<ReadForcePriorityDto> {
-    const forcePriority = await this.repository.update(id, data);
+    const forcePriority = await this.repository.findOne({ where: { id } });
     if (!forcePriority) {
       throw new NotFoundException(`ForcePriority with ID ${id} not found`);
     }
-    return this.mapToReadDto(forcePriority);
+    
+    const updatedForcePriority = await this.mapper.mapAsync(
+      data,
+      UpdateForcePriorityDto,
+      ForcePriority,
+    );
+    Object.assign(forcePriority, updatedForcePriority);
+    
+    const saveResult = await this.repository.save(forcePriority);
+    return this.mapper.map(saveResult, ForcePriority, ReadForcePriorityDto);
   }
 
   async deleteById(id: number): Promise<ReadForcePriorityDto> {
-    const forcePriority = await this.repository.deleteById(id);
+    const forcePriority = await this.repository.findOne({ where: { id } });
     if (!forcePriority) {
       throw new NotFoundException(`ForcePriority with ID ${id} not found`);
     }
-    return this.mapToReadDto(forcePriority);
+    await this.repository.remove(forcePriority);
+    return this.mapper.map(forcePriority, ForcePriority, ReadForcePriorityDto);
   }
 
   async getById(id: number): Promise<ReadForcePriorityDto> {
-    const forcePriority = await this.repository.getById(id);
+    const forcePriority = await this.repository.findOne({ where: { id } });
     if (!forcePriority) {
       throw new NotFoundException(`ForcePriority with ID ${id} not found`);
     }
-    return this.mapToReadDto(forcePriority);
+    return this.mapper.map(forcePriority, ForcePriority, ReadForcePriorityDto);
   }
 
   async getAll(
@@ -45,21 +66,10 @@ export class ForcePriorityService {
     page: number = 1,
     pageLimit: number = 10,
   ): Promise<QueryListResultDto<ReadForcePriorityDto>> {
-    return await this.repository.getAll(filter, sort, page, pageLimit);
-  }
-
-  private mapToReadDto(forcePriority: any): ReadForcePriorityDto {
+    const [data, total] = await this.repository.getAll(filter, sort, page, pageLimit);
     return {
-      id: forcePriority.id,
-      applicantId: forcePriority.applicantId,
-      forceId: forcePriority.forceId,
-      priorityNumber: forcePriority.priorityNumber,
-      createdMethodId: forcePriority.createdMethodId,
-      tableId: forcePriority.tableId,
-      createdDate: forcePriority.createdDate,
-      modifiedDate: forcePriority.updatedDate,
-      createdBy: parseInt(forcePriority.createdBy),
-      modifiedBy: forcePriority.updatedBy ? parseInt(forcePriority.updatedBy) : 0,
+      total,
+      data: this.mapper.mapArray(data, ForcePriority, ReadForcePriorityDto),
     };
   }
 } 

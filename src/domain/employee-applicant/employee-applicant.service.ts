@@ -1,42 +1,63 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectMapper } from '@automapper/nestjs';
+import { Mapper } from '@automapper/core';
 import { EmployeeApplicantRepository } from './employee-applicant.repository';
 import { CreateEmployeeApplicantDto } from './dto/create-employee-applicant.dto';
 import { UpdateEmployeeApplicantDto } from './dto/update-employee-applicant.dto';
 import { ReadEmployeeApplicantDto } from './dto/read-employee-applicant.dto';
 import { QueryListResultDto } from '@/common/dto/result/query-list-result.dto';
 import { SortParam } from '@/common/dto/request-params/sort-param';
+import { EmployeeApplicant } from '@/entities/employee-applicant.entity';
 
 @Injectable()
 export class EmployeeApplicantService {
-  constructor(private readonly repository: EmployeeApplicantRepository) {}
+  constructor(
+    private readonly repository: EmployeeApplicantRepository,
+    @InjectMapper() private readonly mapper: Mapper,
+  ) {}
 
   async create(data: CreateEmployeeApplicantDto): Promise<ReadEmployeeApplicantDto> {
-    const employeeApplicant = await this.repository.create(data);
-    return this.mapToReadDto(employeeApplicant);
+    const employeeApplicant = await this.mapper.mapAsync(
+      data,
+      CreateEmployeeApplicantDto,
+      EmployeeApplicant,
+    );
+    const saveResult = await this.repository.save(employeeApplicant);
+    return this.mapper.map(saveResult, EmployeeApplicant, ReadEmployeeApplicantDto);
   }
 
   async update(id: number, data: UpdateEmployeeApplicantDto): Promise<ReadEmployeeApplicantDto> {
-    const employeeApplicant = await this.repository.update(id, data);
+    const employeeApplicant = await this.repository.findOne({ where: { id } });
     if (!employeeApplicant) {
       throw new NotFoundException(`EmployeeApplicant with ID ${id} not found`);
     }
-    return this.mapToReadDto(employeeApplicant);
+    
+    const updatedEmployeeApplicant = await this.mapper.mapAsync(
+      data,
+      UpdateEmployeeApplicantDto,
+      EmployeeApplicant,
+    );
+    Object.assign(employeeApplicant, updatedEmployeeApplicant);
+    
+    const saveResult = await this.repository.save(employeeApplicant);
+    return this.mapper.map(saveResult, EmployeeApplicant, ReadEmployeeApplicantDto);
   }
 
   async deleteById(id: number): Promise<ReadEmployeeApplicantDto> {
-    const employeeApplicant = await this.repository.deleteById(id);
+    const employeeApplicant = await this.repository.findOne({ where: { id } });
     if (!employeeApplicant) {
       throw new NotFoundException(`EmployeeApplicant with ID ${id} not found`);
     }
-    return this.mapToReadDto(employeeApplicant);
+    await this.repository.remove(employeeApplicant);
+    return this.mapper.map(employeeApplicant, EmployeeApplicant, ReadEmployeeApplicantDto);
   }
 
   async getById(id: number): Promise<ReadEmployeeApplicantDto> {
-    const employeeApplicant = await this.repository.getById(id);
+    const employeeApplicant = await this.repository.findOne({ where: { id } });
     if (!employeeApplicant) {
       throw new NotFoundException(`EmployeeApplicant with ID ${id} not found`);
     }
-    return this.mapToReadDto(employeeApplicant);
+    return this.mapper.map(employeeApplicant, EmployeeApplicant, ReadEmployeeApplicantDto);
   }
 
   async getAll(
@@ -45,21 +66,10 @@ export class EmployeeApplicantService {
     page: number = 1,
     pageLimit: number = 10,
   ): Promise<QueryListResultDto<ReadEmployeeApplicantDto>> {
-    return await this.repository.getAll(filter, sort, page, pageLimit);
-  }
-
-  private mapToReadDto(employeeApplicant: any): ReadEmployeeApplicantDto {
+    const [data, total] = await this.repository.getAll(filter, sort, page, pageLimit);
     return {
-      id: employeeApplicant.id,
-      applicantId: employeeApplicant.applicantId,
-      employeeTypeId: employeeApplicant.employeeTypeId,
-      priorityNumber: employeeApplicant.priorityNumber,
-      createdMethodId: employeeApplicant.createdMethodId,
-      tableId: employeeApplicant.tableId,
-      createdDate: employeeApplicant.createdDate,
-      modifiedDate: employeeApplicant.updatedDate,
-      createdBy: parseInt(employeeApplicant.createdBy),
-      modifiedBy: employeeApplicant.updatedBy ? parseInt(employeeApplicant.updatedBy) : 0,
+      total,
+      data: this.mapper.mapArray(data, EmployeeApplicant, ReadEmployeeApplicantDto),
     };
   }
 } 

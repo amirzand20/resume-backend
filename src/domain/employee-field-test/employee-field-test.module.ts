@@ -4,6 +4,7 @@ import { EmployeeFieldTest } from '@/entities/employee-field-test.entity';
 import { EmployeeFieldTestRepository } from './employee-field-test.repository';
 import { EmployeeFieldTestService } from './employee-field-test.service';
 import { EmployeeFieldTestController } from './employee-field-test.controller';
+import { EmployeeFieldTestProfile } from './employee-field-test.profile';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { EmployeeFieldTestController } from './employee-field-test.controller';
   providers: [
     EmployeeFieldTestRepository,
     EmployeeFieldTestService,
+    EmployeeFieldTestProfile,
   ],
   exports: [EmployeeFieldTestRepository, EmployeeFieldTestService],
 })

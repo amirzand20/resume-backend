@@ -4,6 +4,7 @@ import { Education } from '@/entities/education.entity';
 import { EducationRepository } from './education.repository';
 import { EducationService } from './education.service';
 import { EducationController } from './education.controller';
+import { EducationProfile } from './education.profile';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { EducationController } from './education.controller';
   providers: [
     EducationRepository,
     EducationService,
+    EducationProfile,
   ],
   exports: [EducationRepository, EducationService],
 })

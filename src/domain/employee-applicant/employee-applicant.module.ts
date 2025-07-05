@@ -4,6 +4,7 @@ import { EmployeeApplicant } from '@/entities/employee-applicant.entity';
 import { EmployeeApplicantRepository } from './employee-applicant.repository';
 import { EmployeeApplicantService } from './employee-applicant.service';
 import { EmployeeApplicantController } from './employee-applicant.controller';
+import { EmployeeApplicantProfile } from './employee-applicant.profile';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { EmployeeApplicantController } from './employee-applicant.controller';
   providers: [
     EmployeeApplicantRepository,
     EmployeeApplicantService,
+    EmployeeApplicantProfile,
   ],
   exports: [EmployeeApplicantRepository, EmployeeApplicantService],
 })

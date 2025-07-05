@@ -1,42 +1,63 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectMapper } from '@automapper/nestjs';
+import { Mapper } from '@automapper/core';
 import { EmployeeFieldTestRepository } from './employee-field-test.repository';
 import { CreateEmployeeFieldTestDto } from './dto/create-employee-field-test.dto';
 import { UpdateEmployeeFieldTestDto } from './dto/update-employee-field-test.dto';
 import { ReadEmployeeFieldTestDto } from './dto/read-employee-field-test.dto';
 import { QueryListResultDto } from '@/common/dto/result/query-list-result.dto';
 import { SortParam } from '@/common/dto/request-params/sort-param';
+import { EmployeeFieldTest } from '@/entities/employee-field-test.entity';
 
 @Injectable()
 export class EmployeeFieldTestService {
-  constructor(private readonly repository: EmployeeFieldTestRepository) {}
+  constructor(
+    private readonly repository: EmployeeFieldTestRepository,
+    @InjectMapper() private readonly mapper: Mapper,
+  ) {}
 
   async create(data: CreateEmployeeFieldTestDto): Promise<ReadEmployeeFieldTestDto> {
-    const employeeFieldTest = await this.repository.create(data);
-    return this.mapToReadDto(employeeFieldTest);
+    const employeeFieldTest = await this.mapper.mapAsync(
+      data,
+      CreateEmployeeFieldTestDto,
+      EmployeeFieldTest,
+    );
+    const saveResult = await this.repository.save(employeeFieldTest);
+    return this.mapper.map(saveResult, EmployeeFieldTest, ReadEmployeeFieldTestDto);
   }
 
   async update(id: number, data: UpdateEmployeeFieldTestDto): Promise<ReadEmployeeFieldTestDto> {
-    const employeeFieldTest = await this.repository.update(id, data);
+    const employeeFieldTest = await this.repository.findOne({ where: { id } });
     if (!employeeFieldTest) {
       throw new NotFoundException(`EmployeeFieldTest with ID ${id} not found`);
     }
-    return this.mapToReadDto(employeeFieldTest);
+    
+    const updatedEmployeeFieldTest = await this.mapper.mapAsync(
+      data,
+      UpdateEmployeeFieldTestDto,
+      EmployeeFieldTest,
+    );
+    Object.assign(employeeFieldTest, updatedEmployeeFieldTest);
+    
+    const saveResult = await this.repository.save(employeeFieldTest);
+    return this.mapper.map(saveResult, EmployeeFieldTest, ReadEmployeeFieldTestDto);
   }
 
   async deleteById(id: number): Promise<ReadEmployeeFieldTestDto> {
-    const employeeFieldTest = await this.repository.deleteById(id);
+    const employeeFieldTest = await this.repository.findOne({ where: { id } });
     if (!employeeFieldTest) {
       throw new NotFoundException(`EmployeeFieldTest with ID ${id} not found`);
     }
-    return this.mapToReadDto(employeeFieldTest);
+    await this.repository.remove(employeeFieldTest);
+    return this.mapper.map(employeeFieldTest, EmployeeFieldTest, ReadEmployeeFieldTestDto);
   }
 
   async getById(id: number): Promise<ReadEmployeeFieldTestDto> {
-    const employeeFieldTest = await this.repository.getById(id);
+    const employeeFieldTest = await this.repository.findOne({ where: { id } });
     if (!employeeFieldTest) {
       throw new NotFoundException(`EmployeeFieldTest with ID ${id} not found`);
     }
-    return this.mapToReadDto(employeeFieldTest);
+    return this.mapper.map(employeeFieldTest, EmployeeFieldTest, ReadEmployeeFieldTestDto);
   }
 
   async getAll(
@@ -45,20 +66,10 @@ export class EmployeeFieldTestService {
     page: number = 1,
     pageLimit: number = 10,
   ): Promise<QueryListResultDto<ReadEmployeeFieldTestDto>> {
-    return await this.repository.getAll(filter, sort, page, pageLimit);
-  }
-
-  private mapToReadDto(employeeFieldTest: any): ReadEmployeeFieldTestDto {
+    const [data, total] = await this.repository.getAll(filter, sort, page, pageLimit);
     return {
-      id: employeeFieldTest.id,
-      employeeTypeId: employeeFieldTest.employeeTypeId,
-      employeeFieldId: employeeFieldTest.employeeFieldId,
-      testTypeId: employeeFieldTest.testTypeId,
-      isActive: employeeFieldTest.isActive,
-      createdDate: employeeFieldTest.createdDate,
-      modifiedDate: employeeFieldTest.updatedDate,
-      createdBy: parseInt(employeeFieldTest.createdBy),
-      modifiedBy: employeeFieldTest.updatedBy ? parseInt(employeeFieldTest.updatedBy) : 0,
+      total,
+      data: this.mapper.mapArray(data, EmployeeFieldTest, ReadEmployeeFieldTestDto),
     };
   }
 } 

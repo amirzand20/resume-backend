@@ -4,6 +4,7 @@ import { Properties } from '@/entities/properties.entity';
 import { PropertiesRepository } from './properties.repository';
 import { PropertiesService } from './properties.service';
 import { PropertiesController } from './properties.controller';
+import { PropertiesProfile } from './properties.profile';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { PropertiesController } from './properties.controller';
   providers: [
     PropertiesRepository,
     PropertiesService,
+    PropertiesProfile,
   ],
   exports: [PropertiesRepository, PropertiesService],
 })

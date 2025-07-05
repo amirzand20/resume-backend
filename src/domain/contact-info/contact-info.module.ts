@@ -4,6 +4,7 @@ import { ContactInfo } from '@/entities/contact-info.entity';
 import { ContactInfoRepository } from './contact-info.repository';
 import { ContactInfoService } from './contact-info.service';
 import { ContactInfoController } from './contact-info.controller';
+import { ContactInfoProfile } from './contact-info.profile';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { ContactInfoController } from './contact-info.controller';
   providers: [
     ContactInfoRepository,
     ContactInfoService,
+    ContactInfoProfile,
   ],
   exports: [ContactInfoRepository, ContactInfoService],
 })

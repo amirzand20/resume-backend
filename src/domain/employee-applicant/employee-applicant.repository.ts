@@ -4,25 +4,15 @@ import { Repository } from 'typeorm';
 import { EmployeeApplicant } from '@/entities/employee-applicant.entity';
 import { CreateEmployeeApplicantDto } from './dto/create-employee-applicant.dto';
 import { UpdateEmployeeApplicantDto } from './dto/update-employee-applicant.dto';
-import { ReadEmployeeApplicantDto } from './dto/read-employee-applicant.dto';
-import { QueryListResultDto } from '@/common/dto/result/query-list-result.dto';
 import { SortParam } from '@/common/dto/request-params/sort-param';
 
 @Injectable()
-export class EmployeeApplicantRepository {
+export class EmployeeApplicantRepository extends Repository<EmployeeApplicant> {
   constructor(
     @InjectRepository(EmployeeApplicant)
     private readonly repository: Repository<EmployeeApplicant>,
-  ) {}
-
-  async create(data: CreateEmployeeApplicantDto): Promise<EmployeeApplicant> {
-    const employeeApplicant = this.repository.create(data);
-    return await this.repository.save(employeeApplicant);
-  }
-
-  async update(id: number, data: UpdateEmployeeApplicantDto): Promise<EmployeeApplicant> {
-    await this.repository.update(id, data);
-    return await this.repository.findOne({ where: { id } });
+  ) {
+    super(repository.target, repository.manager, repository.queryRunner);
   }
 
   async deleteById(id: number): Promise<EmployeeApplicant> {
@@ -42,7 +32,7 @@ export class EmployeeApplicantRepository {
     sort: SortParam = { field: '', order: '' },
     page: number = 1,
     pageLimit: number = 10,
-  ): Promise<QueryListResultDto<ReadEmployeeApplicantDto>> {
+  ): Promise<[EmployeeApplicant[], number]> {
     const queryBuilder = this.repository.createQueryBuilder('employeeApplicant');
 
     // Apply filters
@@ -51,6 +41,9 @@ export class EmployeeApplicantRepository {
     }
     if (filter.employeeTypeId) {
       queryBuilder.andWhere('employeeApplicant.employeeTypeId = :employeeTypeId', { employeeTypeId: filter.employeeTypeId });
+    }
+    if (filter.priorityNumber) {
+      queryBuilder.andWhere('employeeApplicant.priorityNumber = :priorityNumber', { priorityNumber: filter.priorityNumber });
     }
     if (filter.createdMethodId) {
       queryBuilder.andWhere('employeeApplicant.createdMethodId = :createdMethodId', { createdMethodId: filter.createdMethodId });
@@ -67,26 +60,6 @@ export class EmployeeApplicantRepository {
     const skip = (page - 1) * pageLimit;
     queryBuilder.skip(skip).take(pageLimit);
 
-    const [items, total] = await queryBuilder.getManyAndCount();
-
-    return {
-      data: items.map(item => this.mapToReadDto(item)),
-      total,
-    };
-  }
-
-  private mapToReadDto(employeeApplicant: EmployeeApplicant): ReadEmployeeApplicantDto {
-    return {
-      id: employeeApplicant.id,
-      applicantId: employeeApplicant.applicantId,
-      employeeTypeId: employeeApplicant.employeeTypeId,
-      priorityNumber: employeeApplicant.priorityNumber,
-      createdMethodId: employeeApplicant.createdMethodId,
-      tableId: employeeApplicant.tableId,
-      createdDate: employeeApplicant.createdDate,
-      modifiedDate: employeeApplicant.updatedDate,
-      createdBy: parseInt(employeeApplicant.createdBy),
-      modifiedBy: employeeApplicant.updatedBy ? parseInt(employeeApplicant.updatedBy) : 0,
-    };
+    return await queryBuilder.getManyAndCount();
   }
 } 

@@ -4,6 +4,7 @@ import { CourseEducationGrade } from '@/entities/course-education-grade.entity';
 import { CourseEducationGradeRepository } from './course-education-grade.repository';
 import { CourseEducationGradeService } from './course-education-grade.service';
 import { CourseEducationGradeController } from './course-education-grade.controller';
+import { CourseEducationGradeProfile } from './course-education-grade.profile';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { CourseEducationGradeController } from './course-education-grade.control
   providers: [
     CourseEducationGradeRepository,
     CourseEducationGradeService,
+    CourseEducationGradeProfile,
   ],
   exports: [CourseEducationGradeRepository, CourseEducationGradeService],
 })

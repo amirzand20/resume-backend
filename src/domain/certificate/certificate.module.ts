@@ -4,6 +4,7 @@ import { Certificate } from '@/entities/certificate.entity';
 import { CertificateRepository } from './certificate.repository';
 import { CertificateService } from './certificate.service';
 import { CertificateController } from './certificate.controller';
+import { CertificateProfile } from './certificate.profile';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { CertificateController } from './certificate.controller';
   providers: [
     CertificateRepository,
     CertificateService,
+    CertificateProfile,
   ],
   exports: [CertificateRepository, CertificateService],
 })

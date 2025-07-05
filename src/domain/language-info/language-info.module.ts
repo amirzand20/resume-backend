@@ -4,6 +4,7 @@ import { LanguageInfo } from '@/entities/language-info.entity';
 import { LanguageInfoRepository } from './language-info.repository';
 import { LanguageInfoService } from './language-info.service';
 import { LanguageInfoController } from './language-info.controller';
+import { LanguageInfoProfile } from './language-info.profile';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { LanguageInfoController } from './language-info.controller';
   providers: [
     LanguageInfoRepository,
     LanguageInfoService,
+    LanguageInfoProfile,
   ],
   exports: [LanguageInfoRepository, LanguageInfoService],
 })

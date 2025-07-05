@@ -1,42 +1,63 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectMapper } from '@automapper/nestjs';
+import { Mapper } from '@automapper/core';
 import { ContactInfoRepository } from './contact-info.repository';
 import { CreateContactInfoDto } from './dto/create-contact-info.dto';
 import { UpdateContactInfoDto } from './dto/update-contact-info.dto';
 import { ReadContactInfoDto } from './dto/read-contact-info.dto';
 import { QueryListResultDto } from '@/common/dto/result/query-list-result.dto';
 import { SortParam } from '@/common/dto/request-params/sort-param';
+import { ContactInfo } from '@/entities/contact-info.entity';
 
 @Injectable()
 export class ContactInfoService {
-  constructor(private readonly repository: ContactInfoRepository) {}
+  constructor(
+    private readonly repository: ContactInfoRepository,
+    @InjectMapper() private readonly mapper: Mapper,
+  ) {}
 
   async create(data: CreateContactInfoDto): Promise<ReadContactInfoDto> {
-    const contactInfo = await this.repository.create(data);
-    return this.mapToReadDto(contactInfo);
+    const contactInfo = await this.mapper.mapAsync(
+      data,
+      CreateContactInfoDto,
+      ContactInfo,
+    );
+    const saveResult = await this.repository.save(contactInfo);
+    return this.mapper.map(saveResult, ContactInfo, ReadContactInfoDto);
   }
 
   async update(id: number, data: UpdateContactInfoDto): Promise<ReadContactInfoDto> {
-    const contactInfo = await this.repository.update(id, data);
+    const contactInfo = await this.repository.findOne({ where: { id } });
     if (!contactInfo) {
       throw new NotFoundException(`ContactInfo with ID ${id} not found`);
     }
-    return this.mapToReadDto(contactInfo);
+    
+    const updatedContactInfo = await this.mapper.mapAsync(
+      data,
+      UpdateContactInfoDto,
+      ContactInfo,
+    );
+    Object.assign(contactInfo, updatedContactInfo);
+    
+    const saveResult = await this.repository.save(contactInfo);
+    return this.mapper.map(saveResult, ContactInfo, ReadContactInfoDto);
   }
 
   async deleteById(id: number): Promise<ReadContactInfoDto> {
-    const contactInfo = await this.repository.deleteById(id);
+    const contactInfo = await this.repository.findOne({ where: { id } });
     if (!contactInfo) {
       throw new NotFoundException(`ContactInfo with ID ${id} not found`);
     }
-    return this.mapToReadDto(contactInfo);
+    await this.repository.remove(contactInfo);
+    return this.mapper.map(contactInfo, ContactInfo, ReadContactInfoDto);
   }
 
   async getById(id: number): Promise<ReadContactInfoDto> {
-    const contactInfo = await this.repository.getById(id);
+    const contactInfo = await this.repository.findOne({ where: { id } });
     if (!contactInfo) {
       throw new NotFoundException(`ContactInfo with ID ${id} not found`);
     }
-    return this.mapToReadDto(contactInfo);
+    return this.mapper.map(contactInfo, ContactInfo, ReadContactInfoDto);
   }
 
   async getAll(
@@ -45,29 +66,10 @@ export class ContactInfoService {
     page: number = 1,
     pageLimit: number = 10,
   ): Promise<QueryListResultDto<ReadContactInfoDto>> {
-    return await this.repository.getAll(filter, sort, page, pageLimit);
-  }
-
-  private mapToReadDto(contactInfo: any): ReadContactInfoDto {
+    const [data, total] = await this.repository.getAll(filter, sort, page, pageLimit);
     return {
-      id: contactInfo.id,
-      personId: contactInfo.personId,
-      locationPlaceId: contactInfo.locationPlaceId,
-      locationAddress: contactInfo.locationAddress,
-      mobileNumber: contactInfo.mobileNumber,
-      telephoneNumber: contactInfo.telephoneNumber,
-      postCode: contactInfo.postCode,
-      fatherMobileNumber: contactInfo.fatherMobileNumber,
-      motherMobileNumber: contactInfo.motherMobileNumber,
-      emailAddress: contactInfo.emailAddress,
-      familiarMobileNumber: contactInfo.familiarMobileNumber,
-      createdMethodId: contactInfo.createdMethodId,
-      tableId: contactInfo.tableId,
-      isActive: contactInfo.isActive,
-      createdDate: contactInfo.createdDate,
-      modifiedDate: contactInfo.modifiedDate,
-      createdBy: contactInfo.createdBy,
-      modifiedBy: contactInfo.modifiedBy,
+      total,
+      data: this.mapper.mapArray(data, ContactInfo, ReadContactInfoDto),
     };
   }
 } 

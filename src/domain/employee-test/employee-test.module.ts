@@ -4,6 +4,7 @@ import { EmployeeTest } from '@/entities/employee-test.entity';
 import { EmployeeTestRepository } from './employee-test.repository';
 import { EmployeeTestService } from './employee-test.service';
 import { EmployeeTestController } from './employee-test.controller';
+import { EmployeeTestProfile } from './employee-test.profile';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { EmployeeTestController } from './employee-test.controller';
   providers: [
     EmployeeTestRepository,
     EmployeeTestService,
+    EmployeeTestProfile,
   ],
   exports: [EmployeeTestRepository, EmployeeTestService],
 })

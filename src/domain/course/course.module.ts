@@ -4,6 +4,7 @@ import { Course } from '@/entities/course.entity';
 import { CourseRepository } from './course.repository';
 import { CourseService } from './course.service';
 import { CourseController } from './course.controller';
+import { CourseProfile } from './course.profile';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { CourseController } from './course.controller';
   providers: [
     CourseRepository,
     CourseService,
+    CourseProfile,
   ],
   exports: [CourseRepository, CourseService],
 })

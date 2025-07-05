@@ -4,25 +4,15 @@ import { Repository } from 'typeorm';
 import { Education } from '@/entities/education.entity';
 import { CreateEducationDto } from './dto/create-education.dto';
 import { UpdateEducationDto } from './dto/update-education.dto';
-import { ReadEducationDto } from './dto/read-education.dto';
-import { QueryListResultDto } from '@/common/dto/result/query-list-result.dto';
 import { SortParam } from '@/common/dto/request-params/sort-param';
 
 @Injectable()
-export class EducationRepository {
+export class EducationRepository extends Repository<Education> {
   constructor(
     @InjectRepository(Education)
     private readonly repository: Repository<Education>,
-  ) {}
-
-  async create(data: CreateEducationDto): Promise<Education> {
-    const education = this.repository.create(data);
-    return await this.repository.save(education);
-  }
-
-  async update(id: number, data: UpdateEducationDto): Promise<Education> {
-    await this.repository.update(id, data);
-    return await this.repository.findOne({ where: { id } });
+  ) {
+    super(repository.target, repository.manager, repository.queryRunner);
   }
 
   async deleteById(id: number): Promise<Education> {
@@ -42,7 +32,7 @@ export class EducationRepository {
     sort: SortParam = { field: '', order: '' },
     page: number = 1,
     pageLimit: number = 10,
-  ): Promise<QueryListResultDto<ReadEducationDto>> {
+  ): Promise<[Education[], number]> {
     const queryBuilder = this.repository.createQueryBuilder('education');
 
     // Apply filters
@@ -61,11 +51,11 @@ export class EducationRepository {
     if (filter.instituteId) {
       queryBuilder.andWhere('education.instituteId = :instituteId', { instituteId: filter.instituteId });
     }
-    if (filter.createdMethodId) {
-      queryBuilder.andWhere('education.createdMethodId = :createdMethodId', { createdMethodId: filter.createdMethodId });
-    }
     if (filter.isActive !== undefined) {
       queryBuilder.andWhere('education.isActive = :isActive', { isActive: filter.isActive });
+    }
+    if (filter.createdMethodId) {
+      queryBuilder.andWhere('education.createdMethodId = :createdMethodId', { createdMethodId: filter.createdMethodId });
     }
 
     // Apply sorting
@@ -79,31 +69,6 @@ export class EducationRepository {
     const skip = (page - 1) * pageLimit;
     queryBuilder.skip(skip).take(pageLimit);
 
-    const [items, total] = await queryBuilder.getManyAndCount();
-
-    return {
-      data: items.map(item => this.mapToReadDto(item)),
-      total,
-    };
-  }
-
-  private mapToReadDto(education: Education): ReadEducationDto {
-    return {
-      id: education.id,
-      personId: education.personId,
-      gradeId: education.gradeId,
-      levelId: education.levelId,
-      fieldId: education.fieldId,
-      instituteId: education.instituteId,
-      graduationDate: education.graduationDate,
-      adjusted: education.adjusted,
-      createdMethodId: education.createdMethodId,
-      tableId: education.tableId,
-      isActive: education.isActive,
-      createdDate: education.createdDate,
-      modifiedDate: education.updatedDate,
-      createdBy: parseInt(education.createdBy),
-      modifiedBy: education.updatedBy ? parseInt(education.updatedBy) : 0,
-    };
+    return await queryBuilder.getManyAndCount();
   }
 } 
