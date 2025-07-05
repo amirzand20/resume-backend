@@ -23,7 +23,7 @@ import { JwtAuthGuard } from '../../auth/guards/jwt-guard.guard';
 
 @ApiTags('Step3 - Course Education Grade Management')
 @Controller('step3/course-education-grade')
-@UseGuards(JwtAuthGuard)
+
 export class Step3CourseEducationGradeController {
   constructor(private readonly courseEducationGradeService: Step3CourseEducationGradeService) {}
 
