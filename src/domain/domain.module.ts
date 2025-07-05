@@ -22,6 +22,7 @@ import { Step4Module } from './step4/step4.module';
 import { Step5Module } from './step5/step5.module';
 import { Step6Module } from './step6/step6.module';
 import { Step7Module } from './step7/step7.module';
+import { ReportModule } from './report/report.module';
 
 @Module({
   imports: [
@@ -47,7 +48,8 @@ import { Step7Module } from './step7/step7.module';
     Step4Module,
     Step5Module,
     Step6Module,
-    Step7Module
+    Step7Module,
+    ReportModule
   ],
   providers: [],
   exports: [
@@ -73,7 +75,8 @@ import { Step7Module } from './step7/step7.module';
     Step4Module,
     Step5Module,
     Step6Module,
-    Step7Module
+    Step7Module,
+    ReportModule
   ],
 })
 export class DomainModule {}
