@@ -5,6 +5,8 @@ import { ContactInfo } from '../../entities/contact-info.entity';
 import { Person } from '../../entities/Person.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { InjectMapper } from '@automapper/nestjs';
+import { Mapper } from '@automapper/core';
 
 @Injectable()
 export class Step2Service {
@@ -12,6 +14,7 @@ export class Step2Service {
     private readonly step2Repository: Step2Repository,
     @InjectRepository(Person)
     private readonly personRepository: Repository<Person>,
+    @InjectMapper() private readonly mapper: Mapper,
   ) {}
 
   async create(createStep2Dto: CreateStep2Dto): Promise<ReadStep2Dto> {
@@ -57,12 +60,12 @@ export class Step2Service {
       createdDate: new Date()
     });
 
-    return this.mapToReadDto(contactInfo);
+    return this.mapper.map(contactInfo, ContactInfo, ReadStep2Dto);
   }
 
   async findAll(): Promise<ReadStep2Dto[]> {
     const contactInfos = await this.step2Repository.findAll();
-    return contactInfos.map(contactInfo => this.mapToReadDto(contactInfo));
+    return this.mapper.mapArray(contactInfos, ContactInfo, ReadStep2Dto);
   }
 
   async findById(id: number): Promise<ReadStep2Dto> {
@@ -70,7 +73,7 @@ export class Step2Service {
     if (!contactInfo) {
       throw new NotFoundException('اطلاعات تماس مورد نظر یافت نشد');
     }
-    return this.mapToReadDto(contactInfo);
+    return this.mapper.map(contactInfo, ContactInfo, ReadStep2Dto);
   }
 
   async findByPersonId(personId: number): Promise<ReadStep2Dto> {
@@ -78,7 +81,7 @@ export class Step2Service {
     if (!contactInfo) {
       throw new NotFoundException('اطلاعات تماس برای این شخص یافت نشد');
     }
-    return this.mapToReadDto(contactInfo);
+    return this.mapper.map(contactInfo, ContactInfo, ReadStep2Dto);
   }
 
   async update(id: number, updateStep2Dto: UpdateStep2Dto): Promise<ReadStep2Dto> {
@@ -127,7 +130,7 @@ export class Step2Service {
       ...updateStep2Dto,
       updatedDate: new Date()
     });
-    return this.mapToReadDto(updatedContactInfo);
+    return this.mapper.map(updatedContactInfo, ContactInfo, ReadStep2Dto);
   }
 
   async delete(id: number): Promise<{ message: string }> {
@@ -192,26 +195,5 @@ export class Step2Service {
         throw new BadRequestException(`شماره موبایل ${mobileNumber} فرمت صحیح ندارد`);
       }
     }
-  }
-
-  private mapToReadDto(contactInfo: ContactInfo): ReadStep2Dto {
-    return {
-      id: contactInfo.id,
-      personId: contactInfo.personId,
-      locationPlaceId: contactInfo.locationPlaceId,
-      locationAddress: contactInfo.locationAddress,
-      mobileNumber: contactInfo.mobileNumber,
-      telephoneNumber: contactInfo.telephoneNumber,
-      postCode: contactInfo.postCode,
-      fatherMobileNumber: contactInfo.fatherMobileNumber,
-      motherMobileNumber: contactInfo.motherMobileNumber,
-      emailAddress: contactInfo.emailAddress,
-      familiarMobileNumber: contactInfo.familiarMobileNumber,
-      createdMethodId: contactInfo.createdMethodId,
-      tableId: contactInfo.tableId,
-      isActive: contactInfo.isActive,
-      createdAt: contactInfo.createdDate,
-      updatedAt: contactInfo.updatedDate
-    };
   }
 } 

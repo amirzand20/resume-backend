@@ -3,10 +3,16 @@ import { Step1Repository } from './step1.repository';
 import { CreateStep1Dto } from './dto/create-step1.dto';
 import { UpdateStep1Dto } from './dto/update-step1.dto';
 import { ReadStep1Dto } from './dto/read-step1.dto';
+import { InjectMapper } from '@automapper/nestjs';
+import { Mapper } from '@automapper/core';
+import { Person } from '@/entities/Person.entity';
 
 @Injectable()
 export class Step1Service {
-  constructor(private readonly step1Repository: Step1Repository) {}
+  constructor(
+    private readonly step1Repository: Step1Repository,
+    @InjectMapper() private readonly mapper: Mapper,
+  ) {}
 
   async create(createStep1Dto: CreateStep1Dto): Promise<ReadStep1Dto> {
     // بررسی تکراری نبودن کد ملی
@@ -41,12 +47,12 @@ export class Step1Service {
     }
 
     const person = await this.step1Repository.create(createStep1Dto);
-    return this.mapToReadDto(person);
+    return this.mapper.map(person, Person, ReadStep1Dto);
   }
 
   async findAll(): Promise<ReadStep1Dto[]> {
     const persons = await this.step1Repository.findAll();
-    return persons.map(person => this.mapToReadDto(person));
+    return this.mapper.mapArray(persons, Person, ReadStep1Dto);
   }
 
   async findOne(id: number): Promise<ReadStep1Dto> {
@@ -54,7 +60,7 @@ export class Step1Service {
     if (!person) {
       throw new NotFoundException('شخص مورد نظر یافت نشد');
     }
-    return this.mapToReadDto(person);
+    return this.mapper.map(person, Person, ReadStep1Dto);
   }
 
   async findByNationalNo(nationalNo: string): Promise<ReadStep1Dto> {
@@ -62,7 +68,7 @@ export class Step1Service {
     if (!person) {
       throw new NotFoundException('شخص با این کد ملی یافت نشد');
     }
-    return this.mapToReadDto(person);
+    return this.mapper.map(person, Person, ReadStep1Dto);
   }
 
   async update(id: number, updateStep1Dto: UpdateStep1Dto): Promise<ReadStep1Dto> {
@@ -110,7 +116,7 @@ export class Step1Service {
     }
 
     const updatedPerson = await this.step1Repository.update(id, updateStep1Dto);
-    return this.mapToReadDto(updatedPerson);
+    return this.mapper.map(updatedPerson, Person, ReadStep1Dto);
   }
 
   async remove(id: number): Promise<void> {
@@ -148,30 +154,6 @@ export class Step1Service {
     return {
       isValid: missingFields.length === 0,
       missingFields
-    };
-  }
-
-  private mapToReadDto(person: any): ReadStep1Dto {
-    return {
-      id: person.id,
-      nationalNo: person.nationalNo,
-      firstName: person.firstName,
-      lastName: person.lastName,
-      birthDate: person.birthDate,
-      birthPlaceId: person.birthPlaceId,
-      locationPlaceId: person.locationPlaceId,
-      sexId: person.sexId,
-      aboutMe: person.aboutMe,
-      mobileNumber: person.mobileNumber,
-      telephoneNumber: person.telephoneNumber,
-      emailAddress: person.emailAddress,
-      address: person.address,
-      postCode: person.postCode,
-      profileImage: person.profileImage,
-      createdDate: person.createdDate,
-      updatedDate: person.updatedDate,
-      createdBy: person.createdBy,
-      updatedBy: person.updatedBy,
     };
   }
 } 

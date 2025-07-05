@@ -6,11 +6,14 @@ import {
   ReadCourseDto 
 } from './dto';
 import { Course } from '../../entities/course.entity';
+import { InjectMapper } from '@automapper/nestjs';
+import { Mapper } from '@automapper/core';
 
 @Injectable()
 export class Step3CourseService {
   constructor(
     private readonly courseRepository: Step3CourseRepository,
+    @InjectMapper() private readonly mapper: Mapper,
   ) {}
 
   async create(createCourseDto: CreateCourseDto): Promise<ReadCourseDto> {
@@ -38,12 +41,12 @@ export class Step3CourseService {
     };
 
     const course = await this.courseRepository.create(courseData);
-    return this.mapToReadDto(course);
+    return this.mapper.map(course, Course, ReadCourseDto);
   }
 
   async findAll(): Promise<ReadCourseDto[]> {
     const courses = await this.courseRepository.findAll();
-    return courses.map(course => this.mapToReadDto(course));
+    return this.mapper.mapArray(courses, Course, ReadCourseDto);
   }
 
   async findById(id: number): Promise<ReadCourseDto> {
@@ -51,7 +54,7 @@ export class Step3CourseService {
     if (!course) {
       throw new NotFoundException('دوره مورد نظر یافت نشد');
     }
-    return this.mapToReadDto(course);
+    return this.mapper.map(course, Course, ReadCourseDto);
   }
 
   async update(id: number, updateCourseDto: UpdateCourseDto): Promise<ReadCourseDto> {
@@ -123,7 +126,7 @@ export class Step3CourseService {
       throw new NotFoundException('خطا در بروزرسانی دوره');
     }
 
-    return this.mapToReadDto(updatedCourse);
+    return this.mapper.map(updatedCourse, Course, ReadCourseDto);
   }
 
   async delete(id: number): Promise<{ message: string }> {
@@ -142,27 +145,11 @@ export class Step3CourseService {
 
   async findByEmployeeTypeId(employeeTypeId: number): Promise<ReadCourseDto[]> {
     const courses = await this.courseRepository.findByEmployeeTypeId(employeeTypeId);
-    return courses.map(course => this.mapToReadDto(course));
+    return this.mapper.mapArray(courses, Course, ReadCourseDto);
   }
 
   async findByEmployeeForceId(employeeForceId: number): Promise<ReadCourseDto[]> {
     const courses = await this.courseRepository.findByEmployeeForceId(employeeForceId);
-    return courses.map(course => this.mapToReadDto(course));
-  }
-
-  private mapToReadDto(course: Course): ReadCourseDto {
-    return {
-      id: course.id,
-      employeeTypeId: course.employeeTypeId,
-      employeeForceId: course.employeeForceId,
-      title: course.title,
-      startDate: course.startDate,
-      endDate: course.endDate,
-      recruitmentStatusId: course.recruitmentStatusId,
-      createdMethodId: course.createdMethodId,
-      tableId: course.tableId,
-      createdAt: course.createdDate,
-      updatedAt: course.updatedDate
-    };
+    return this.mapper.mapArray(courses, Course, ReadCourseDto);
   }
 } 
