@@ -1,52 +1,62 @@
-import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
-import { ValidationPipe } from '@nestjs/common';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import {
+  BadRequestException,
+  ValidationPipe
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import * as process from "process";
+import { NestFactory } from '@nestjs/core';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import { useContainer } from 'class-validator';
+import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
+import { initializeTransactionalContext } from 'typeorm-transactional';
+import { AppModule } from './app.module';
+import { setupSwagger } from './config/swagger';
+import * as fs from 'fs'
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-  const configService = app.get(ConfigService);
-  
-  // Enable validation
-  app.useGlobalPipes(new ValidationPipe());
-  
-  // Configure Swagger
-  const config = new DocumentBuilder()
-    .setTitle('Resume API')
-    .setDescription(`API for managing resumes and related data.`)
-    .setVersion('1.0')
-    .addBearerAuth(
-      {
-        type: 'oauth2',
-        flows: {
-          password: {
-            tokenUrl: `http://localhost:3000/auth/login`,
-            scopes: {},
-          }
-        },
-      },'jwt-auth'
-    )
-    .build();
-  
-  const document = SwaggerModule.createDocument(app, config);
-  
-  // Configure Swagger UI
-  SwaggerModule.setup('api', app, document, {
-    swaggerOptions: {
-      persistAuthorization: true,
-    },
+  initializeTransactionalContext()
+  const keyFile=fs.readFileSync('./keys/ssl.key')
+  const certificateFile=fs.readFileSync('./keys/ssl.crt')
+  const app = await NestFactory.create<NestExpressApplication>(AppModule,{
+    httpsOptions:{
+      key:keyFile,
+      cert:certificateFile,
+      rejectUnauthorized:true
+    }
   });
-  
-  // Enable CORS
+   app.set('trust proxy',['loopback','linklocal','uniquelocal']);
   app.enableCors();
-  
-  await app.listen(process.env.PORT ?? 3000);
+  app.useLogger(app.get(WINSTON_MODULE_NEST_PROVIDER));
+  // app.setGlobalPrefix('api');
+  const configService = app.get(ConfigService);
+  setupSwagger(app, configService);
+  useContainer(app.select(AppModule), { fallbackOnErrors: true });
 
-  console.log(`+--------------------------------------------------+`);
-  console.log(`| Server is running on  http://localhost:${process.env.PORT ?? 3000}      |`);
-  console.log(`| Swagger is running on  http://localhost:${process.env.PORT ?? 3000}/api |`);
-  console.log(`+--------------------------------------------------+`);
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+      stopAtFirstError: true,
+      transformOptions: { enableImplicitConversion: true },
+      validationError: {
+        target: true,
+        value: true,
+      },
+      //errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
+      //exceptionFactory: (errors) => new UnprocessableEntityException(errors),
+      exceptionFactory: (errors) => {
+        const result = errors.map((error, index) => ({
+          property: error.property,
+          message: error.constraints[Object.keys(error.constraints)[0]],
+        }));
+        return new BadRequestException(result);
+      },
+    }),
+  );
+
+  const port = configService.get("PORT");
+  await app.listen(port);
+  console.info('----------------------------------------------------');
+  console.info(`| Server URL: https://localhost:${port}             |`);
+  console.info(`| Swagger URL: https://localhost:${port}/doc        |`);
+  console.info('----------------------------------------------------');
 }
 bootstrap();
