@@ -6,6 +6,9 @@ import { ReadSkillDto } from './dto/read-skill.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Person } from '../../entities/Person.entity';
+import { InjectMapper } from '@automapper/nestjs';
+import { Mapper } from '@automapper/core';
+import { Skill } from '../../entities/skill.entity';
 
 @Injectable()
 export class Step5SkillService {
@@ -13,6 +16,7 @@ export class Step5SkillService {
     private readonly skillRepository: Step5SkillRepository,
     @InjectRepository(Person)
     private readonly personRepository: Repository<Person>,
+    @InjectMapper() private readonly mapper: Mapper,
   ) {}
 
   async create(dto: CreateSkillDto): Promise<ReadSkillDto> {
@@ -38,12 +42,12 @@ export class Step5SkillService {
     };
 
     const skill = await this.skillRepository.create(skillData);
-    return this.mapToReadDto(skill);
+    return this.mapper.map(skill, Skill, ReadSkillDto);
   }
 
   async findAll(): Promise<ReadSkillDto[]> {
     const skills = await this.skillRepository.findAll();
-    return skills.map(skill => this.mapToReadDto(skill));
+    return this.mapper.mapArray(skills, Skill, ReadSkillDto);
   }
 
   async findById(id: number): Promise<ReadSkillDto> {
@@ -51,7 +55,7 @@ export class Step5SkillService {
     if (!skill) {
       throw new NotFoundException('مهارت مورد نظر یافت نشد');
     }
-    return this.mapToReadDto(skill);
+    return this.mapper.map(skill, Skill, ReadSkillDto);
   }
 
   async findByPersonId(personId: number): Promise<ReadSkillDto[]> {
@@ -62,7 +66,7 @@ export class Step5SkillService {
     }
 
     const skills = await this.skillRepository.findByPersonId(personId);
-    return skills.map(skill => this.mapToReadDto(skill));
+    return this.mapper.mapArray(skills, Skill, ReadSkillDto);
   }
 
   async update(id: number, dto: UpdateSkillDto): Promise<ReadSkillDto> {
@@ -106,7 +110,7 @@ export class Step5SkillService {
     if (!updatedSkill) {
       throw new NotFoundException('مهارت مورد نظر یافت نشد');
     }
-    return this.mapToReadDto(updatedSkill);
+    return this.mapper.map(updatedSkill, Skill, ReadSkillDto);
   }
 
   async delete(id: number): Promise<{ message: string }> {
@@ -122,20 +126,5 @@ export class Step5SkillService {
     }
 
     return { message: 'مهارت با موفقیت حذف شد' };
-  }
-
-  private mapToReadDto(skill: any): ReadSkillDto {
-    return {
-      id: skill.id,
-      personId: skill.personId,
-      skillTypeId: skill.skillTypeId,
-      skillLevel: skill.skillLevel,
-      createdMethodId: skill.createdMethodId,
-      tableId: skill.tableId,
-      createdBy: skill.createdBy,
-      createdDate: skill.createdDate,
-      updatedBy: skill.updatedBy,
-      updatedDate: skill.updatedDate,
-    };
   }
 } 

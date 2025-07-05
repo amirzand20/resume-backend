@@ -7,12 +7,15 @@ import {
   ReadCourseFieldDto 
 } from './dto';
 import { CourseField } from '../../entities/course-field.entity';
+import { InjectMapper } from '@automapper/nestjs';
+import { Mapper } from '@automapper/core';
 
 @Injectable()
 export class Step3CourseFieldService {
   constructor(
     private readonly courseFieldRepository: Step3CourseFieldRepository,
     private readonly courseRepository: Step3CourseRepository,
+    @InjectMapper() private readonly mapper: Mapper,
   ) {}
 
   async create(createCourseFieldDto: CreateCourseFieldDto): Promise<ReadCourseFieldDto> {
@@ -45,12 +48,12 @@ export class Step3CourseFieldService {
     };
 
     const courseField = await this.courseFieldRepository.create(courseFieldData);
-    return this.mapToReadDto(courseField);
+    return this.mapper.map(courseField, CourseField, ReadCourseFieldDto);
   }
 
   async findAll(): Promise<ReadCourseFieldDto[]> {
     const courseFields = await this.courseFieldRepository.findAll();
-    return courseFields.map(field => this.mapToReadDto(field));
+    return this.mapper.mapArray(courseFields, CourseField, ReadCourseFieldDto);
   }
 
   async findById(id: number): Promise<ReadCourseFieldDto> {
@@ -58,7 +61,7 @@ export class Step3CourseFieldService {
     if (!courseField) {
       throw new NotFoundException('رشته دوره مورد نظر یافت نشد');
     }
-    return this.mapToReadDto(courseField);
+    return this.mapper.map(courseField, CourseField, ReadCourseFieldDto);
   }
 
   async update(id: number, updateCourseFieldDto: UpdateCourseFieldDto): Promise<ReadCourseFieldDto> {
@@ -126,7 +129,7 @@ export class Step3CourseFieldService {
       throw new NotFoundException('خطا در بروزرسانی رشته دوره');
     }
 
-    return this.mapToReadDto(updatedCourseField);
+    return this.mapper.map(updatedCourseField, CourseField, ReadCourseFieldDto);
   }
 
   async delete(id: number): Promise<{ message: string }> {
@@ -151,29 +154,16 @@ export class Step3CourseFieldService {
     }
 
     const courseFields = await this.courseFieldRepository.findByCourseId(courseId);
-    return courseFields.map(field => this.mapToReadDto(field));
+    return this.mapper.mapArray(courseFields, CourseField, ReadCourseFieldDto);
   }
 
   async findByCourseFieldId(courseFieldId: number): Promise<ReadCourseFieldDto[]> {
     const courseFields = await this.courseFieldRepository.findByCourseFieldId(courseFieldId);
-    return courseFields.map(field => this.mapToReadDto(field));
+    return this.mapper.mapArray(courseFields, CourseField, ReadCourseFieldDto);
   }
 
   async findByCapacity(capacity: number): Promise<ReadCourseFieldDto[]> {
     const courseFields = await this.courseFieldRepository.findByCapacity(capacity);
-    return courseFields.map(field => this.mapToReadDto(field));
-  }
-
-  private mapToReadDto(courseField: CourseField): ReadCourseFieldDto {
-    return {
-      id: courseField.id,
-      courseId: courseField.courseId,
-      courseFieldId: courseField.courseFieldId,
-      capacity: courseField.capacity,
-      createdMethodId: courseField.createdMethodId,
-      tableId: courseField.tableId,
-      createdAt: courseField.createdDate,
-      updatedAt: courseField.updatedDate
-    };
+    return this.mapper.mapArray(courseFields, CourseField, ReadCourseFieldDto);
   }
 } 

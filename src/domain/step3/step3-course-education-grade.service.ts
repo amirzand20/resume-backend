@@ -7,12 +7,15 @@ import {
   ReadCourseEducationGradeDto 
 } from './dto';
 import { CourseEducationGrade } from '../../entities/course-education-grade.entity';
+import { InjectMapper } from '@automapper/nestjs';
+import { Mapper } from '@automapper/core';
 
 @Injectable()
 export class Step3CourseEducationGradeService {
   constructor(
     private readonly courseEducationGradeRepository: Step3CourseEducationGradeRepository,
     private readonly courseRepository: Step3CourseRepository,
+    @InjectMapper() private readonly mapper: Mapper,
   ) {}
 
   async create(createCourseEducationGradeDto: CreateCourseEducationGradeDto): Promise<ReadCourseEducationGradeDto> {
@@ -40,12 +43,12 @@ export class Step3CourseEducationGradeService {
     };
 
     const courseEducationGrade = await this.courseEducationGradeRepository.create(courseEducationGradeData);
-    return this.mapToReadDto(courseEducationGrade);
+    return this.mapper.map(courseEducationGrade, CourseEducationGrade, ReadCourseEducationGradeDto);
   }
 
   async findAll(): Promise<ReadCourseEducationGradeDto[]> {
     const courseEducationGrades = await this.courseEducationGradeRepository.findAll();
-    return courseEducationGrades.map(grade => this.mapToReadDto(grade));
+    return this.mapper.mapArray(courseEducationGrades, CourseEducationGrade, ReadCourseEducationGradeDto);
   }
 
   async findById(id: number): Promise<ReadCourseEducationGradeDto> {
@@ -53,7 +56,7 @@ export class Step3CourseEducationGradeService {
     if (!courseEducationGrade) {
       throw new NotFoundException('مقطع تحصیلی دوره مورد نظر یافت نشد');
     }
-    return this.mapToReadDto(courseEducationGrade);
+    return this.mapper.map(courseEducationGrade, CourseEducationGrade, ReadCourseEducationGradeDto);
   }
 
   async update(id: number, updateCourseEducationGradeDto: UpdateCourseEducationGradeDto): Promise<ReadCourseEducationGradeDto> {
@@ -120,7 +123,7 @@ export class Step3CourseEducationGradeService {
       throw new NotFoundException('خطا در بروزرسانی مقطع تحصیلی دوره');
     }
 
-    return this.mapToReadDto(updatedCourseEducationGrade);
+    return this.mapper.map(updatedCourseEducationGrade, CourseEducationGrade, ReadCourseEducationGradeDto);
   }
 
   async delete(id: number): Promise<{ message: string }> {
@@ -145,25 +148,11 @@ export class Step3CourseEducationGradeService {
     }
 
     const courseEducationGrades = await this.courseEducationGradeRepository.findByCourseId(courseId);
-    return courseEducationGrades.map(grade => this.mapToReadDto(grade));
+    return this.mapper.mapArray(courseEducationGrades, CourseEducationGrade, ReadCourseEducationGradeDto);
   }
 
   async findByEducationGradeId(educationGradeId: number): Promise<ReadCourseEducationGradeDto[]> {
     const courseEducationGrades = await this.courseEducationGradeRepository.findByEducationGradeId(educationGradeId);
-    return courseEducationGrades.map(grade => this.mapToReadDto(grade));
-  }
-
-  private mapToReadDto(courseEducationGrade: CourseEducationGrade): ReadCourseEducationGradeDto {
-    return {
-      id: courseEducationGrade.id,
-      courseId: courseEducationGrade.courseId,
-      educationGradeId: courseEducationGrade.educationGradeId,
-      educationFieldId: courseEducationGrade.educationFieldId,
-      adjustedMin: courseEducationGrade.adjustedMin,
-      createdMethodId: courseEducationGrade.createdMethodId,
-      tableId: courseEducationGrade.tableId,
-      createdAt: courseEducationGrade.createdDate,
-      updatedAt: courseEducationGrade.updatedDate
-    };
+    return this.mapper.mapArray(courseEducationGrades, CourseEducationGrade, ReadCourseEducationGradeDto);
   }
 } 

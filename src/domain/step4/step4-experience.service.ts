@@ -4,10 +4,15 @@ import { CreateExperienceDto } from './dto/create-experience.dto';
 import { UpdateExperienceDto } from './dto/update-experience.dto';
 import { ReadExperienceDto } from './dto/read-experience.dto';
 import { Experience } from '../../entities/experience.entity';
+import { InjectMapper } from '@automapper/nestjs';
+import { Mapper } from '@automapper/core';
 
 @Injectable()
 export class Step4ExperienceService {
-  constructor(private readonly experienceRepository: Step4ExperienceRepository) {}
+  constructor(
+    private readonly experienceRepository: Step4ExperienceRepository,
+    @InjectMapper() private readonly mapper: Mapper,
+  ) {}
 
   async create(createDto: CreateExperienceDto): Promise<ReadExperienceDto> {
     if (new Date(createDto.startDate) >= new Date(createDto.endDate)) {
@@ -26,18 +31,18 @@ export class Step4ExperienceService {
       createdBy: createDto.createdBy
     };
     const experience = await this.experienceRepository.create(experienceData);
-    return this.mapToReadDto(experience);
+    return this.mapper.map(experience, Experience, ReadExperienceDto);
   }
 
   async findAll(): Promise<ReadExperienceDto[]> {
     const experiences = await this.experienceRepository.findAll();
-    return experiences.map(e => this.mapToReadDto(e));
+    return this.mapper.mapArray(experiences, Experience, ReadExperienceDto);
   }
 
   async findById(id: number): Promise<ReadExperienceDto> {
     const experience = await this.experienceRepository.findById(id);
     if (!experience) throw new NotFoundException('سابقه مورد نظر یافت نشد');
-    return this.mapToReadDto(experience);
+    return this.mapper.map(experience, Experience, ReadExperienceDto);
   }
 
   async update(id: number, updateDto: UpdateExperienceDto): Promise<ReadExperienceDto> {
@@ -69,7 +74,7 @@ export class Step4ExperienceService {
     }
     const updated = await this.experienceRepository.update(id, updateData);
     if (!updated) throw new NotFoundException('خطا در بروزرسانی سابقه');
-    return this.mapToReadDto(updated);
+    return this.mapper.map(updated, Experience, ReadExperienceDto);
   }
 
   async delete(id: number): Promise<{ message: string }> {
@@ -82,22 +87,6 @@ export class Step4ExperienceService {
 
   async findByPersonId(personId: number): Promise<ReadExperienceDto[]> {
     const experiences = await this.experienceRepository.findByPersonId(personId);
-    return experiences.map(e => this.mapToReadDto(e));
-  }
-
-  private mapToReadDto(e: Experience): ReadExperienceDto {
-    return {
-      id: e.id,
-      personId: e.personId,
-      jobTitle: e.jobTitle,
-      jobTypeId: e.jobTypeId,
-      jobOrganId: e.jobOrganId,
-      startDate: e.startDate,
-      endDate: e.endDate,
-      createdMethodId: e.createdMethodId,
-      tableId: e.tableId,
-      createdDate: e.createdDate,
-      updatedDate: e.updatedDate
-    };
+    return this.mapper.mapArray(experiences, Experience, ReadExperienceDto);
   }
 } 

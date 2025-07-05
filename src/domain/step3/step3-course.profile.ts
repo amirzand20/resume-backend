@@ -28,7 +28,7 @@ export class Step3CourseProfile extends AutomapperProfile {
         forMember(dest => dest.createdMethodId, mapFrom(src => src.createdMethodId)),
         forMember(dest => dest.tableId, mapFrom(src => src.tableId)),
         forMember(dest => dest.createdAt, mapFrom(src => src.createdDate)),
-        // updatedAt does not exist on Course entity, so do not map
+        // Do not map updatedAt since it does not exist on Course entity
       );
       createMap(mapper, ReadCourseDto, Course);
       createMap(mapper, CreateCourseDto, Course);

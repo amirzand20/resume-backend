@@ -6,6 +6,9 @@ import { ReadApplicantDto } from './dto/read-applicant.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Person } from '../../entities/Person.entity';
+import { InjectMapper } from '@automapper/nestjs';
+import { Mapper } from '@automapper/core';
+import { Applicant } from '../../entities/applicant.entity';
 
 @Injectable()
 export class Step7ApplicantService {
@@ -13,6 +16,7 @@ export class Step7ApplicantService {
     private readonly applicantRepository: Step7ApplicantRepository,
     @InjectRepository(Person)
     private readonly personRepository: Repository<Person>,
+    @InjectMapper() private readonly mapper: Mapper,
   ) {}
 
   async create(dto: CreateApplicantDto): Promise<ReadApplicantDto> {
@@ -32,12 +36,12 @@ export class Step7ApplicantService {
       createdDate: new Date(),
     };
     const entity = await this.applicantRepository.create(data);
-    return this.mapToReadDto(entity);
+    return this.mapper.map(entity, Applicant, ReadApplicantDto);
   }
 
   async findAll(): Promise<ReadApplicantDto[]> {
     const list = await this.applicantRepository.findAll();
-    return list.map(item => this.mapToReadDto(item));
+    return this.mapper.mapArray(list, Applicant, ReadApplicantDto);
   }
 
   async findById(id: number): Promise<ReadApplicantDto> {
@@ -45,7 +49,7 @@ export class Step7ApplicantService {
     if (!entity) {
       throw new NotFoundException('متقاضی مورد نظر یافت نشد');
     }
-    return this.mapToReadDto(entity);
+    return this.mapper.map(entity, Applicant, ReadApplicantDto);
   }
 
   async findByPersonId(personId: number): Promise<ReadApplicantDto[]> {
@@ -55,7 +59,7 @@ export class Step7ApplicantService {
       throw new BadRequestException('فرد مورد نظر یافت نشد');
     }
     const list = await this.applicantRepository.findByPersonId(personId);
-    return list.map(item => this.mapToReadDto(item));
+    return this.mapper.mapArray(list, Applicant, ReadApplicantDto);
   }
 
   async update(id: number, dto: UpdateApplicantDto): Promise<ReadApplicantDto> {
@@ -83,7 +87,7 @@ export class Step7ApplicantService {
     if (!updated) {
       throw new NotFoundException('متقاضی مورد نظر یافت نشد');
     }
-    return this.mapToReadDto(updated);
+    return this.mapper.map(updated, Applicant, ReadApplicantDto);
   }
 
   async delete(id: number): Promise<{ message: string }> {
@@ -97,19 +101,5 @@ export class Step7ApplicantService {
       throw new NotFoundException('متقاضی مورد نظر یافت نشد');
     }
     return { message: 'متقاضی با موفقیت حذف شد' };
-  }
-
-  private mapToReadDto(entity: any): ReadApplicantDto {
-    return {
-      id: entity.id,
-      personId: entity.personId,
-      applicantStatusId: entity.applicantStatusId,
-      createdMethodId: entity.createdMethodId,
-      tableId: entity.tableId,
-      createdBy: entity.createdBy,
-      createdDate: entity.createdDate,
-      updatedBy: entity.updatedBy,
-      updatedDate: entity.updatedDate,
-    };
   }
 } 

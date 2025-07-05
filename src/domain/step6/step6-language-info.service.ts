@@ -6,6 +6,9 @@ import { ReadLanguageInfoDto } from './dto/read-language-info.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Person } from '../../entities/Person.entity';
+import { InjectMapper } from '@automapper/nestjs';
+import { Mapper } from '@automapper/core';
+import { LanguageInfo } from '../../entities/language-info.entity';
 
 @Injectable()
 export class Step6LanguageInfoService {
@@ -13,6 +16,7 @@ export class Step6LanguageInfoService {
     private readonly languageInfoRepository: Step6LanguageInfoRepository,
     @InjectRepository(Person)
     private readonly personRepository: Repository<Person>,
+    @InjectMapper() private readonly mapper: Mapper,
   ) {}
 
   async create(dto: CreateLanguageInfoDto): Promise<ReadLanguageInfoDto> {
@@ -34,12 +38,12 @@ export class Step6LanguageInfoService {
       createdDate: new Date(),
     };
     const entity = await this.languageInfoRepository.create(data);
-    return this.mapToReadDto(entity);
+    return this.mapper.map(entity, LanguageInfo, ReadLanguageInfoDto);
   }
 
   async findAll(): Promise<ReadLanguageInfoDto[]> {
     const list = await this.languageInfoRepository.findAll();
-    return list.map(item => this.mapToReadDto(item));
+    return this.mapper.mapArray(list, LanguageInfo, ReadLanguageInfoDto);
   }
 
   async findById(id: number): Promise<ReadLanguageInfoDto> {
@@ -47,7 +51,7 @@ export class Step6LanguageInfoService {
     if (!entity) {
       throw new NotFoundException('اطلاعات زبان مورد نظر یافت نشد');
     }
-    return this.mapToReadDto(entity);
+    return this.mapper.map(entity, LanguageInfo, ReadLanguageInfoDto);
   }
 
   async findByPersonId(personId: number): Promise<ReadLanguageInfoDto[]> {
@@ -57,7 +61,7 @@ export class Step6LanguageInfoService {
       throw new BadRequestException('فرد مورد نظر یافت نشد');
     }
     const list = await this.languageInfoRepository.findByPersonId(personId);
-    return list.map(item => this.mapToReadDto(item));
+    return this.mapper.mapArray(list, LanguageInfo, ReadLanguageInfoDto);
   }
 
   async update(id: number, dto: UpdateLanguageInfoDto): Promise<ReadLanguageInfoDto> {
@@ -99,7 +103,7 @@ export class Step6LanguageInfoService {
     if (!updated) {
       throw new NotFoundException('اطلاعات زبان مورد نظر یافت نشد');
     }
-    return this.mapToReadDto(updated);
+    return this.mapper.map(updated, LanguageInfo, ReadLanguageInfoDto);
   }
 
   async delete(id: number): Promise<{ message: string }> {
@@ -113,23 +117,5 @@ export class Step6LanguageInfoService {
       throw new NotFoundException('اطلاعات زبان مورد نظر یافت نشد');
     }
     return { message: 'اطلاعات زبان با موفقیت حذف شد' };
-  }
-
-  private mapToReadDto(entity: any): ReadLanguageInfoDto {
-    return {
-      id: entity.id,
-      personId: entity.personId,
-      languageId: entity.languageId,
-      readingLevel: entity.readingLevel,
-      writingLevel: entity.writingLevel,
-      speakingLevel: entity.speakingLevel,
-      listeningLevel: entity.listeningLevel,
-      createdMethodId: entity.createdMethodId,
-      tableId: entity.tableId,
-      createdBy: entity.createdBy,
-      createdDate: entity.createdDate,
-      updatedBy: entity.updatedBy,
-      updatedDate: entity.updatedDate,
-    };
   }
 } 
