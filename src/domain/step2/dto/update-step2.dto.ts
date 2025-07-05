@@ -132,7 +132,7 @@ export class UpdateStep2Dto {
     required: false
   })
   @IsOptional()
-  @IsUUID('4', { message: 'شناسه جدول باید UUID معتبر باشد' })
+  @IsString()
   tableId?: string;
 
   @ApiProperty({ 
@@ -143,4 +143,13 @@ export class UpdateStep2Dto {
   @IsOptional()
   @IsBoolean()
   isActive?: boolean;
+
+  @ApiProperty({ 
+    description: 'شناسه کاربر بروزرسانی کننده',
+    example: '123e4567-e89b-12d3-a456-426614174000',
+    required: false
+  })
+  @IsOptional()
+  @IsString()
+  updatedBy?: string;
 } 

@@ -2,7 +2,7 @@ import { Injectable, NotFoundException, BadRequestException, ConflictException }
 import { Step2Repository } from './step2.repository';
 import { CreateStep2Dto, UpdateStep2Dto, ReadStep2Dto } from './dto';
 import { ContactInfo } from '../../entities/contact-info.entity';
-import { Person } from '../../entities/person.entity';
+import { Person } from '../../entities/Person.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
@@ -53,7 +53,8 @@ export class Step2Service {
 
     const contactInfo = await this.step2Repository.create({
       ...createStep2Dto,
-      isActive: createStep2Dto.isActive ?? true
+      isActive: createStep2Dto.isActive ?? true,
+      createdDate: new Date()
     });
 
     return this.mapToReadDto(contactInfo);
@@ -122,7 +123,10 @@ export class Step2Service {
     // اعتبارسنجی شماره‌های موبایل
     await this.validateMobileNumbers(updateStep2Dto);
 
-    const updatedContactInfo = await this.step2Repository.update(id, updateStep2Dto);
+    const updatedContactInfo = await this.step2Repository.update(id, {
+      ...updateStep2Dto,
+      updatedDate: new Date()
+    });
     return this.mapToReadDto(updatedContactInfo);
   }
 

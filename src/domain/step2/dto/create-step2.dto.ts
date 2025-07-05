@@ -120,7 +120,8 @@ export class CreateStep2Dto {
     description: 'شناسه جدول',
     example: '123e4567-e89b-12d3-a456-426614174000'
   })
-  @IsUUID('4', { message: 'شناسه جدول باید UUID معتبر باشد' })
+  @IsString()
+  @IsNotEmpty({ message: 'شناسه جدول الزامی است' })
   tableId: string;
 
   @ApiProperty({ 
@@ -131,4 +132,12 @@ export class CreateStep2Dto {
   @IsOptional()
   @IsBoolean()
   isActive?: boolean;
+
+  @ApiProperty({ 
+    description: 'شناسه کاربر ایجاد کننده',
+    example: '123e4567-e89b-12d3-a456-426614174000'
+  })
+  @IsString()
+  @IsNotEmpty({ message: 'شناسه کاربر ایجاد کننده الزامی است' })
+  createdBy: string;
 } 

@@ -4,7 +4,7 @@ import { Step2Controller } from './step2.controller';
 import { Step2Service } from './step2.service';
 import { Step2Repository } from './step2.repository';
 import { ContactInfo } from '../../entities/contact-info.entity';
-import { Person } from '../../entities/person.entity';
+import { Person } from '../../entities/Person.entity';
 
 @Module({
   imports: [
