@@ -11,7 +11,7 @@ export class Properties extends Audit {
   personId: number;
 
   @Column({ type: 'int' })
-  propertyId: number;
+  propertyTypeId: number;
 
   @Column({ type: 'int' })
   createdMethodId: number;
@@ -20,6 +20,6 @@ export class Properties extends Audit {
   tableId: string;
 
   @ManyToOne(() => Person, person => person.properties)
-  @JoinColumn({ name: 'person_id' })
+  @JoinColumn({ name: 'personId' })
   person: Person;
 }

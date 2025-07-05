@@ -1,32 +1,30 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, JoinColumn } from 'typeorm';
+import { Audit } from './audit.entity';
 import { BaseTable } from './base-table.entity';
 
 @Entity('tb_base_item')
-export class BaseItem {
-  @PrimaryGeneratedColumn({ type: 'int' })
+export class BaseItem extends Audit {
+  @PrimaryGeneratedColumn({ type: 'bigint' })
   id: number;
 
-  @Column({ type: 'int' })
-  tableId: number;
+  @Column({ type: 'uuid' })
+  tableId: string;
 
-  @Column({ type: 'varchar', length: 255 })
-  itemName: string;
-
-  @Column({ type: 'int', nullable: true })
+  @Column({ type: 'bigint', nullable: true })
   parentId: number;
 
-  @Column({ type: 'varchar', length: 10, nullable: true })
-  itemCode: string;
+  @Column({ type: 'varchar' })
+  title: string;
 
-  @Column({ type: 'boolean', default: true })
-  isActive: boolean;
+  @Column({ type: 'int' })
+  createdMethodId: number;
 
   @ManyToOne(() => BaseTable, baseTable => baseTable.items)
-  @JoinColumn({ name: 'table_id' })
+  @JoinColumn({ name: 'tableId' })
   table: BaseTable;
 
   @ManyToOne(() => BaseItem, baseItem => baseItem.children)
-  @JoinColumn({ name: 'parent_id' })
+  @JoinColumn({ name: 'parentId' })
   parent: BaseItem;
 
   @OneToMany(() => BaseItem, baseItem => baseItem.parent)

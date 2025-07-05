@@ -13,14 +13,11 @@ export class Document extends Audit {
   @Column({ type: 'int' })
   documentTypeId: number;
 
-  @Column({ type: 'varchar', length: 300 })
-  documentName: string;
+  @Column({ type: 'varchar' })
+  documentNumber: string;
 
-  @Column({ type: 'varchar', length: 15, nullable: true })
-  documentTitle: string;
-
-  @Column({ type: 'varchar', length: 11, nullable: true })
-  documentId: string;
+  @Column({ type: 'date' })
+  issueDate: Date;
 
   @Column({ type: 'int' })
   createdMethodId: number;
@@ -29,6 +26,6 @@ export class Document extends Audit {
   tableId: string;
 
   @ManyToOne(() => Person, person => person.documents)
-  @JoinColumn({ name: 'person_id' })
+  @JoinColumn({ name: 'personId' })
   person: Person;
 }

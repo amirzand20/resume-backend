@@ -16,37 +16,37 @@ export class AdditionalInformation extends Audit {
   @Column({ type: 'int' })
   fatherJobOrganId: number;
 
-  @Column({ type: 'int', nullable: true })
+  @Column({ type: 'int' })
   motherJobId: number;
 
-  @Column({ type: 'int', nullable: true })
+  @Column({ type: 'int' })
   motherJobOrganId: number;
 
-  @Column({ type: 'int', nullable: true })
+  @Column({ type: 'int' })
   wifeJobId: number;
 
-  @Column({ type: 'int', nullable: true })
+  @Column({ type: 'int' })
   wifeJobOrganId: number;
 
-  @Column({ type: 'smallint', nullable: true })
+  @Column({ type: 'int' })
   childCount: number;
 
-  @Column({ type: 'int', nullable: true })
+  @Column({ type: 'int' })
   incomeLevelId: number;
 
-  @Column({ type: 'smallint', nullable: true })
+  @Column({ type: 'int' })
   brotherCount: number;
 
-  @Column({ type: 'smallint', nullable: true })
+  @Column({ type: 'int' })
   sisterCount: number;
 
-  @Column({ type: 'int', nullable: true })
+  @Column({ type: 'int' })
   fatherEducationGradeId: number;
 
-  @Column({ type: 'int', nullable: true })
+  @Column({ type: 'int' })
   motherEducationGradeId: number;
 
-  @Column({ type: 'smallint', nullable: true })
+  @Column({ type: 'int' })
   childNumber: number;
 
   @Column({ type: 'int' })
@@ -59,6 +59,6 @@ export class AdditionalInformation extends Audit {
   isActive: boolean;
 
   @ManyToOne(() => Person, person => person.additionalInformations)
-  @JoinColumn({ name: 'person_id' })
+  @JoinColumn({ name: 'personId' })
   person: Person;
 }

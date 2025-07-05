@@ -2,8 +2,9 @@ import { ApiClientService } from '@/api-client/api-client.service';
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as https from 'https';
-import { NotFoundException } from "@nestjs/common/exceptions/not-found.exception";
-// import { ExamPersonRepository } from '@/domain/common/exam-person/exam-person.repository';
+import { UserService } from './user.service';
+import { User } from '@/entities/user.entity';
+import { UserDto } from './dto/user.dto';
 
 @Injectable()
 export class AuthService {
@@ -14,25 +15,52 @@ export class AuthService {
     constructor(
         private apiClient: ApiClientService,
         private jwtService: JwtService,
-        // private examPersonRepository: ExamPersonRepository,
+        private userService: UserService,
     ) {
     }
 
-    async validateUser(username: string, password: string) {
-        // const _examPersonel = await this.examPersonRepository.getByUserAndPassword(username, password)
-        // if (_examPersonel) {
-        //     return _examPersonel
-        // }
-        // throw new NotFoundException('کاربری با این مشخصات وجود ندارد');
-        return { id: 1, username: username }; // Temporary mock
+    async validateUser(username: string, password: string): Promise<User> {
+        return await this.userService.validateUser(username, password);
     }
 
-    async login(user: any) {
-        const payLoad = { userId: user.id, userName: user.username, exam: user, volunteerInfoId: 54 };
+    async login(user: User) {
+        const payload = { 
+            userId: user.id, 
+            username: user.username, 
+            email: user.email,
+            role: user.role 
+        };
+        
+        const userDto: UserDto = {
+            id: user.id,
+            username: user.username,
+            email: user.email,
+            role: user.role,
+            isActive: user.isActive,
+            createdAt: user.createdAt,
+        };
+
         return {
-            access_token: this.jwtService.sign(payLoad),
-            user: user,
-            volunteerInfoId: 54
+            access_token: this.jwtService.sign(payload),
+            user: userDto,
+        };
+    }
+
+    async register(registerDto: any) {
+        const user = await this.userService.register(registerDto);
+        
+        const userDto: UserDto = {
+            id: user.id,
+            username: user.username,
+            email: user.email,
+            role: user.role,
+            isActive: user.isActive,
+            createdAt: user.createdAt,
+        };
+
+        return {
+            message: 'User registered successfully',
+            user: userDto,
         };
     }
 

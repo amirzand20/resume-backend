@@ -13,7 +13,7 @@ export class EmployeeApplicant extends Audit {
   @Column({ type: 'int' })
   employeeTypeId: number;
 
-  @Column({ type: 'smallint' })
+  @Column({ type: 'int' })
   priorityNumber: number;
 
   @Column({ type: 'int' })
@@ -23,6 +23,6 @@ export class EmployeeApplicant extends Audit {
   tableId: string;
 
   @ManyToOne(() => Applicant, applicant => applicant.employeeApplicants)
-  @JoinColumn({ name: 'applicant_id' })
+  @JoinColumn({ name: 'applicantId' })
   applicant: Applicant;
 }

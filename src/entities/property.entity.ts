@@ -1,4 +1,3 @@
-
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { Audit } from './audit.entity';
 import { Person } from './Person.entity';
@@ -14,8 +13,14 @@ export class Property extends Audit {
   @Column({ type: 'int' })
   propertyTypeId: number;
 
-  @Column({ type: 'jsonb', nullable: true })
-  propertyInfo: object;
+  @Column({ type: 'varchar' })
+  propertyTitle: string;
+
+  @Column({ type: 'varchar' })
+  propertyAddress: string;
+
+  @Column({ type: 'int' })
+  propertyValue: number;
 
   @Column({ type: 'int' })
   createdMethodId: number;
@@ -27,6 +32,6 @@ export class Property extends Audit {
   isActive: boolean;
 
   @ManyToOne(() => Person, person => person.propertyRecords)
-  @JoinColumn({ name: 'person_id' })
+  @JoinColumn({ name: 'personId' })
   person: Person;
 }

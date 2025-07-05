@@ -11,22 +11,28 @@ export class Education extends Audit {
   personId: number;
 
   @Column({ type: 'int' })
-  gradeId: number;
+  educationGradeId: number;
 
   @Column({ type: 'int' })
-  levelId: number;
+  educationFieldId: number;
 
-  @Column({ type: 'int', nullable: true })
-  fieldId: number;
+  @Column({ type: 'int' })
+  educationInstitutionId: number;
 
-  @Column({ type: 'int', nullable: true })
-  instituteId: number;
+  @Column({ type: 'int' })
+  educationCountryId: number;
 
-  @Column({ type: 'date', nullable: true })
-  graduationDate: Date;
+  @Column({ type: 'int' })
+  educationProvinceId: number;
 
-  @Column({ type: 'float', nullable: true })
-  adjusted: number;
+  @Column({ type: 'int' })
+  educationCityId: number;
+
+  @Column({ type: 'date' })
+  startDate: Date;
+
+  @Column({ type: 'date' })
+  endDate: Date;
 
   @Column({ type: 'int' })
   createdMethodId: number;
@@ -38,6 +44,6 @@ export class Education extends Audit {
   isActive: boolean;
 
   @ManyToOne(() => Person, person => person.educations)
-  @JoinColumn({ name: 'person_id' })
+  @JoinColumn({ name: 'personId' })
   person: Person;
 }

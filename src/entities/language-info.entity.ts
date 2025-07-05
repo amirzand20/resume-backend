@@ -1,4 +1,3 @@
-
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { Audit } from './audit.entity';
 import { Person } from './Person.entity';
@@ -14,25 +13,25 @@ export class LanguageInfo extends Audit {
   @Column({ type: 'int' })
   languageId: number;
 
-  @Column({ type: 'int', nullable: true })
-  readingLevelId: number;
+  @Column({ type: 'int' })
+  readingLevel: number;
 
-  @Column({ type: 'int', nullable: true })
-  writingLevelId: number;
+  @Column({ type: 'int' })
+  writingLevel: number;
 
-  @Column({ type: 'int', nullable: true })
-  conversationLevelId: number;
+  @Column({ type: 'int' })
+  speakingLevel: number;
 
-  @Column({ type: 'int', nullable: true })
-  comment: number;
-
-  @Column({ type: 'uuid' })
-  tableId: string;
+  @Column({ type: 'int' })
+  listeningLevel: number;
 
   @Column({ type: 'int' })
   createdMethodId: number;
 
+  @Column({ type: 'uuid' })
+  tableId: string;
+
   @ManyToOne(() => Person, person => person.languageInfos)
-  @JoinColumn({ name: 'person_id' })
+  @JoinColumn({ name: 'personId' })
   person: Person;
 }

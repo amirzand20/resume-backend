@@ -1,4 +1,3 @@
-
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { Audit } from './audit.entity';
 import { Applicant } from './applicant.entity';
@@ -14,7 +13,7 @@ export class ForcePriority extends Audit {
   @Column({ type: 'int' })
   forceId: number;
 
-  @Column({ type: 'smallint' })
+  @Column({ type: 'int' })
   priorityNumber: number;
 
   @Column({ type: 'int' })
@@ -24,6 +23,6 @@ export class ForcePriority extends Audit {
   tableId: string;
 
   @ManyToOne(() => Applicant, applicant => applicant.forcePriorities)
-  @JoinColumn({ name: 'applicant_id' })
+  @JoinColumn({ name: 'applicantId' })
   applicant: Applicant;
 }

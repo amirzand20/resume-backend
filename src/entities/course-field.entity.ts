@@ -24,7 +24,7 @@ export class CourseField extends Audit {
   tableId: string;
 
   @ManyToOne(() => Course, course => course.courseFields)
-  @JoinColumn({ name: 'course_id' })
+  @JoinColumn({ name: 'courseId' })
   course: Course;
 
   @OneToMany(() => PersonnelInCourse, personnel => personnel.courseField)

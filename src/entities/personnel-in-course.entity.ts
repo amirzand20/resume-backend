@@ -13,8 +13,8 @@ export class PersonnelInCourse extends Audit {
   @Column({ type: 'bigint' })
   applicantId: number;
 
-  @Column({ type: 'int' })
-  volunteerCode: number;
+  @Column({ type: 'varchar' })
+  volunteerCode: string;
 
   @Column({ type: 'int' })
   createdMethodId: number;
@@ -23,6 +23,6 @@ export class PersonnelInCourse extends Audit {
   tableId: string;
 
   @ManyToOne(() => CourseField, courseField => courseField.personnel)
-  @JoinColumn({ name: 'course_field_id' })
+  @JoinColumn({ name: 'courseFieldId' })
   courseField: CourseField;
 }

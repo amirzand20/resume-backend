@@ -13,29 +13,29 @@ export class ContactInfo extends Audit {
   @Column({ type: 'int' })
   locationPlaceId: number;
 
-  @Column({ type: 'varchar', length: 300 })
-  locationAddress: string;
-
-  @Column({ type: 'varchar', length: 15, nullable: true })
-  mobileNumber: string;
-
-  @Column({ type: 'varchar', length: 11, nullable: true })
-  telephoneNumber: string;
-
-  @Column({ type: 'varchar', length: 10, nullable: true })
-  postCode: string;
-
-  @Column({ type: 'varchar', length: 15, nullable: true })
-  fatherMobileNumber: string;
-
-  @Column({ type: 'varchar', length: 15, nullable: true })
-  motherMobileNumber: string;
-
-  @Column({ type: 'varchar', length: 50, nullable: true })
+  @Column({ type: 'varchar' })
   emailAddress: string;
 
-  @Column({ type: 'varchar', length: 15, nullable: true })
+  @Column({ type: 'varchar' })
   familiarMobileNumber: string;
+
+  @Column({ type: 'varchar' })
+  locationAddress: string;
+
+  @Column({ type: 'varchar' })
+  mobileNumber: string;
+
+  @Column({ type: 'varchar' })
+  telephoneNumber: string;
+
+  @Column({ type: 'varchar' })
+  postCode: string;
+
+  @Column({ type: 'varchar' })
+  fatherMobileNumber: string;
+
+  @Column({ type: 'varchar' })
+  motherMobileNumber: string;
 
   @Column({ type: 'int' })
   createdMethodId: number;
@@ -47,6 +47,6 @@ export class ContactInfo extends Audit {
   isActive: boolean;
 
   @ManyToOne(() => Person, person => person.contactInfos)
-  @JoinColumn({ name: 'person_id' })
+  @JoinColumn({ name: 'personId' })
   person: Person;
 }

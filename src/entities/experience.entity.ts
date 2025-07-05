@@ -10,28 +10,28 @@ export class Experience extends Audit {
   @Column({ type: 'bigint' })
   personId: number;
 
-  @Column({ type: 'varchar', length: 200 })
-  jobTitle: string;
-
-  @Column({ type: 'varchar', length: 200 })
-  companyName: string;
+  @Column({ type: 'int' })
+  jobTypeId: number;
 
   @Column({ type: 'int' })
-  companyLocationId: number;
+  jobOrganId: number;
+
+  @Column({ type: 'varchar' })
+  jobTitle: string;
 
   @Column({ type: 'date' })
   startDate: Date;
 
-  @Column({ type: 'date', nullable: true })
+  @Column({ type: 'date' })
   endDate: Date;
+
+  @Column({ type: 'int' })
+  createdMethodId: number;
 
   @Column({ type: 'uuid' })
   tableId: string;
 
-  @Column({ type: 'int' })
-  createdMethodId: number;
-  
   @ManyToOne(() => Person, person => person.experiences)
-  @JoinColumn({ name: 'person_id' })
+  @JoinColumn({ name: 'personId' })
   person: Person;
 }

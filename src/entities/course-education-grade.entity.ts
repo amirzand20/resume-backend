@@ -26,6 +26,6 @@ export class CourseEducationGrade extends Audit {
   tableId: string;
 
   @ManyToOne(() => Course, course => course.educationGrades)
-  @JoinColumn({ name: 'course_id' })
+  @JoinColumn({ name: 'courseId' })
   course: Course;
 }

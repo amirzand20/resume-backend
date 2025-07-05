@@ -10,23 +10,27 @@ import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { initializeTransactionalContext } from 'typeorm-transactional';
 import { AppModule } from './app.module';
 import { setupSwagger } from './config/swagger';
-import * as fs from 'fs'
 
 async function bootstrap() {
   initializeTransactionalContext()
-  const keyFile=fs.readFileSync('./keys/ssl.key')
-  const certificateFile=fs.readFileSync('./keys/ssl.crt')
-  const app = await NestFactory.create<NestExpressApplication>(AppModule,{
-    httpsOptions:{
-      key:keyFile,
-      cert:certificateFile,
-      rejectUnauthorized:true
-    }
+  
+  // For development, use HTTP only
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  
+  app.set('trust proxy', ['loopback', 'linklocal', 'uniquelocal']);
+  
+  // Configure CORS for development
+  app.enableCors({
+    origin: true, // Allow all origins in development
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With'],
+    credentials: true,
+    preflightContinue: false,
+    optionsSuccessStatus: 204,
   });
-   app.set('trust proxy',['loopback','linklocal','uniquelocal']);
-  app.enableCors();
+  
   app.useLogger(app.get(WINSTON_MODULE_NEST_PROVIDER));
-  // app.setGlobalPrefix('api');
+  
   const configService = app.get(ConfigService);
   setupSwagger(app, configService);
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
@@ -40,8 +44,6 @@ async function bootstrap() {
         target: true,
         value: true,
       },
-      //errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
-      //exceptionFactory: (errors) => new UnprocessableEntityException(errors),
       exceptionFactory: (errors) => {
         const result = errors.map((error, index) => ({
           property: error.property,
@@ -52,11 +54,12 @@ async function bootstrap() {
     }),
   );
 
-  const port = configService.get("PORT");
+  const port = configService.get("PORT") || 3000;
   await app.listen(port);
+  
   console.info('----------------------------------------------------');
-  console.info(`| Server URL: https://localhost:${port}             |`);
-  console.info(`| Swagger URL: https://localhost:${port}/doc        |`);
+  console.info(`| Server URL: http://localhost:${port}             |`);
+  console.info(`| Swagger URL: http://localhost:${port}/doc        |`);
   console.info('----------------------------------------------------');
 }
 bootstrap();

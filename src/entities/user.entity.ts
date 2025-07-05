@@ -1,39 +1,33 @@
-import { Entity, Column, PrimaryGeneratedColumn, BeforeInsert } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
-import * as bcrypt from 'bcrypt';
 
-@Entity('users')
+@Entity('tb_users')
 export class User {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn({ type: 'bigint' })
   @ApiProperty({ description: 'The unique identifier of the user' })
   id: number;
 
-  @Column({ unique: true })
+  @Column({ type: 'varchar', length: 50, unique: true })
   @ApiProperty({ description: 'The username of the user' })
   username: string;
 
-  @Column({ unique: true })
+  @Column({ type: 'varchar', length: 100, unique: true })
   @ApiProperty({ description: 'The email of the user' })
   email: string;
 
-  @Column()
+  @Column({ type: 'varchar', length: 255 })
   @ApiProperty({ description: 'The password of the user' })
   password: string;
 
-  @Column({ default: 'user' })
+  @Column({ type: 'varchar', length: 20, default: 'user' })
   @ApiProperty({ description: 'The role of the user', enum: ['admin', 'user'] })
   role: string;
 
-  @Column({ default: true })
+  @Column({ type: 'boolean', default: true })
   @ApiProperty({ description: 'Whether the user is active' })
   isActive: boolean;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   @ApiProperty({ description: 'When the user was created' })
   createdAt: Date;
-
-  @BeforeInsert()
-  async hashPassword() {
-    this.password = await bcrypt.hash(this.password, 10);
-  }
 } 

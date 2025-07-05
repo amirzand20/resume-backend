@@ -1,8 +1,12 @@
 import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { ApiClientModule } from '@/api-client/api-client.module';
 import { SessionSerializer } from './session/session.serializer';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { AuthService } from './auth.service';
+import { UserService } from './user.service';
+import { UserRepository } from './user.repository';
+import { User } from '@/entities/user.entity';
 import { HttpClientService } from '@/http-client/http-client.service';
 import { HttpClientModule } from '@/http-client/http-client.module';
 import { PassportModule } from '@nestjs/passport';
@@ -14,6 +18,7 @@ import { OAuthJwtStrategy } from './strategies/oauth-jwt.strategy';
 
 @Module({
   imports: [
+    TypeOrmModule.forFeature([User]),
     ApiClientModule,
     HttpClientModule,
     // VolunteerInfoModule,
@@ -27,7 +32,16 @@ import { OAuthJwtStrategy } from './strategies/oauth-jwt.strategy';
       },
     }),
   ],
-  providers: [JwtStrategy, OAuthJwtStrategy, SessionSerializer, AuthService, HttpClientService],
+  providers: [
+    JwtStrategy, 
+    OAuthJwtStrategy, 
+    SessionSerializer, 
+    AuthService, 
+    UserService,
+    UserRepository,
+    HttpClientService
+  ],
   controllers: [AuthController],
+  exports: [AuthService, UserService],
 })
 export class AuthModule { }

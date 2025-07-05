@@ -22,7 +22,7 @@ export class Applicant extends Audit {
   tableId: string;
 
   @ManyToOne(() => Person, person => person.applicants)
-  @JoinColumn({ name: 'person_id' })
+  @JoinColumn({ name: 'personId' })
   person: Person;
 
   @OneToMany(() => EmployeeApplicant, employeeApplicant => employeeApplicant.applicant)

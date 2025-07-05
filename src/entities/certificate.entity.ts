@@ -29,6 +29,6 @@ export class Certificate extends Audit {
   certificateIssuer: string;
 
   @ManyToOne(() => Person, person => person.certificates)
-  @JoinColumn({ name: 'person_id' })
+  @JoinColumn({ name: 'personId' })
   person: Person;
 }

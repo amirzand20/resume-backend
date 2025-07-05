@@ -11,10 +11,10 @@ export class Skill extends Audit {
   personId: number;
 
   @Column({ type: 'int' })
-  skillId: number;
+  skillTypeId: number;
 
   @Column({ type: 'int' })
-  levelId: number;
+  skillLevel: number;
 
   @Column({ type: 'int' })
   createdMethodId: number;
@@ -23,6 +23,6 @@ export class Skill extends Audit {
   tableId: string;
 
   @ManyToOne(() => Person, person => person.skills)
-  @JoinColumn({ name: 'person_id' })
+  @JoinColumn({ name: 'personId' })
   person: Person;
 }
