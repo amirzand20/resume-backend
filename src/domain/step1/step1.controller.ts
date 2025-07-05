@@ -17,7 +17,7 @@ import { CreateStep1Dto } from './dto/create-step1.dto';
 import { UpdateStep1Dto } from './dto/update-step1.dto';
 import { ReadStep1Dto } from './dto/read-step1.dto';
 
-@ApiTags('Step1 - اطلاعات فردی')
+@ApiTags('Step1 - person-info')
 @Controller('step1')
 export class Step1Controller {
   constructor(private readonly step1Service: Step1Service) {}

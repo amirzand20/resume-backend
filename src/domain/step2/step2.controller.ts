@@ -16,7 +16,7 @@ import { Step2Service } from './step2.service';
 import { CreateStep2Dto, UpdateStep2Dto, ReadStep2Dto } from './dto';
 import { JwtAuthGuard } from '../../auth/guards/jwt-guard.guard';
 
-@ApiTags('Step2 - اطلاعات تماس')
+@ApiTags('Step2 - contract-info')
 @Controller('step2')
 export class Step2Controller {
   constructor(private readonly step2Service: Step2Service) {}
